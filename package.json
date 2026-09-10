@@ -6,6 +6,20 @@
   "type": "module",
   "license": "MIT",
   "author": "Volodymyr Shynkarov",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/VoldemLive/reveal-sequence.git"
@@ -16,8 +30,11 @@
   "homepage": "https://github.com/VoldemLive/reveal-sequence#readme",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && vite build",
-    "check": "npm run build && vitest run",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "build": "npm run typecheck && vite build",
+    "build:package": "vite build --mode library && tsc -p tsconfig.lib.json",
+    "check:package": "node scripts/check-package.mjs && npm pack --dry-run",
+    "check": "npm run build && npm run build:package && npm run check:package && vitest run",
     "test": "vitest run"
   },
   "peerDependencies": {

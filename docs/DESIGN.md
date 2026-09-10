@@ -600,7 +600,8 @@ The published package should provide:
 dist/
   index.js
   index.cjs
-  index.d.ts
+  types/
+    index.d.ts
 ```
 
 Package requirements:
@@ -731,8 +732,7 @@ The current POC proves:
 - sentence-batched and completion-based live-region announcements.
 
 The POC does not yet prove:
-- cross-browser timing and selection behavior;
-- the final package-size budget.
+- cross-browser timing and selection behavior.
 
 POC code should be evolved, not treated as the production implementation.
 

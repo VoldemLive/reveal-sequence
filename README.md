@@ -19,6 +19,16 @@ npm run dev
 npm run check
 ```
 
+## Package build
+
+```bash
+npm run build:package
+npm run check:package
+```
+
+The build produces ESM, CommonJS, source maps, and TypeScript declarations. The package check
+verifies public exports, the dry-run tarball, and a 5 KB gzip limit per JavaScript entry point.
+
 ## API preview
 
 ```tsx

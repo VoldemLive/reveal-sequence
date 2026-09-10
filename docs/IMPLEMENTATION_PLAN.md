@@ -34,8 +34,9 @@ built on tested reconciliation and scheduling behavior.
 
 ## Phase 4: Publishable package
 
-- [ ] Produce ESM, CommonJS, source map, and declaration outputs.
-- [ ] Enforce the 5 KB gzip budget.
-- [ ] Add package-content and provenance checks.
+- [x] Produce ESM, CommonJS, source map, and declaration outputs.
+- [x] Enforce the 5 KB gzip budget.
+- [x] Add package-content checks.
+- [ ] Enable npm provenance for the release.
 - [ ] Publish the public playground.
 - [ ] Release an npm alpha and collect API feedback.
