@@ -3,6 +3,7 @@ export { RevealText } from './RevealText'
 export { segmentText } from './segment'
 export type {
   RevealEffect,
+  RevealAnnouncement,
   RevealGranularity,
   RevealGroupProps,
   RevealMode,

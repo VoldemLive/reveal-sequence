@@ -28,7 +28,7 @@ built on tested reconciliation and scheduling behavior.
 
 - [x] Match server and first-client markup.
 - [ ] Add React 18 and React 19 fixture coverage.
-- [ ] Add sentence- and completion-based announcement modes.
+- [x] Add sentence- and completion-based announcement modes.
 - [ ] Add Chromium, Firefox, and WebKit tests.
 - [ ] Add high-rate stream and long-message benchmarks.
 

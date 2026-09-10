@@ -18,6 +18,48 @@ describe('RevealText', () => {
     expect(getByLabelText('Hello world')).toBeTruthy()
   })
 
+  it('does not create a live region unless announcements are requested', () => {
+    const { queryByRole } = render(<RevealText value="Silent by default" />)
+    expect(queryByRole('status')).toBeNull()
+  })
+
+  it('announces only completed sentences from newly streamed text', async () => {
+    const { container, rerender } = render(
+      <RevealText announce="sentence" interval={0} streaming value="" />,
+    )
+    await act(() => vi.runAllTimersAsync())
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('')
+
+    rerender(<RevealText announce="sentence" interval={0} streaming value="First sentence." />)
+    await act(() => vi.runAllTimersAsync())
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('First sentence.')
+
+    rerender(
+      <RevealText
+        announce="sentence"
+        interval={0}
+        streaming
+        value="First sentence. Second sentence."
+      />,
+    )
+    await act(() => vi.runAllTimersAsync())
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('Second sentence.')
+  })
+
+  it('announces the settled value only after a stream completes', async () => {
+    const { container, rerender } = render(
+      <RevealText announce="complete" interval={0} streaming value="Draft" />,
+    )
+    await act(() => vi.runAllTimersAsync())
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('')
+
+    rerender(
+      <RevealText announce="complete" interval={0} streaming={false} value="Draft complete." />,
+    )
+    await act(() => vi.runAllTimersAsync())
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('Draft complete.')
+  })
+
   it('animates only newly appended segments after the first render', async () => {
     const { rerender } = render(<RevealText interval={0} value="Hello world" />)
     await act(() => vi.runAllTimersAsync())

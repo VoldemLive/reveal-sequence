@@ -1,5 +1,6 @@
 import {
   createElement,
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,13 +15,26 @@ import {
 } from './core/compaction'
 import { reconcileText, type TextReconcileState } from './core/reconcileText'
 import { RevealUnit } from './RevealUnit'
-import type { RevealTextProps, RevealUnitPhase, TextUnit } from './types'
+import type { RevealAnnouncement, RevealTextProps, RevealUnitPhase, TextUnit } from './types'
 import { useHydrated } from './useHydrated'
 import { useRevealScheduler } from './useRevealScheduler'
 import { useRevealTrigger } from './useRevealTrigger'
 
 const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 const SELECTION_SAFETY_TIMEOUT = 1500
+const COMPLETED_SENTENCE_PATTERN = /[^.!?]+[.!?]+(?=\s|$)/g
+const liveRegionStyle = {
+  border: 0,
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  margin: -1,
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: 1,
+} as const
 
 interface LatestTextState {
   generation: number
@@ -32,6 +46,7 @@ interface LatestTextState {
 
 export function RevealText({
   active: controlledActive = true,
+  announce = 'off',
   as: Root = 'span',
   by = 'word',
   className,
@@ -74,13 +89,20 @@ export function RevealText({
   const selectionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const selectionHandlerRef = useRef<(() => void) | undefined>(undefined)
   const runCompactionRef = useRef<(finalRequested: boolean) => void>(() => undefined)
-  const [, setCompactionVersion] = useState(0)
+  const [compactionVersion, setCompactionVersion] = useState(0)
+  const [announcement, setAnnouncement] = useState('')
+  const sentenceStateRef = useRef<
+    { generation: number; mode: RevealAnnouncement; start: number } | undefined
+  >(undefined)
+  const completeAnnouncementPendingRef = useRef(streaming)
 
   if (phaseGenerationRef.current !== generation) {
     phaseGenerationRef.current = generation
     phasesRef.current.clear()
     compactionRef.current = { end: 0, generation }
   }
+
+  if (streaming) completeAnnouncementPendingRef.current = true
 
   latestRef.current = {
     generation,
@@ -219,6 +241,54 @@ export function RevealText({
   }, [generation, hydrated, mode, queueCompaction, reconciliation.state, streaming, value])
 
   useEffect(() => {
+    if (!hydrated || announce !== 'sentence') {
+      sentenceStateRef.current = undefined
+      return
+    }
+
+    const previous = sentenceStateRef.current
+    if (previous?.generation !== generation || previous.mode !== announce) {
+      sentenceStateRef.current = { generation, mode: announce, start: value.length }
+      return
+    }
+
+    if (!streaming || value.length <= previous.start) return
+
+    const appended = value.slice(previous.start)
+    const completedSentences: string[] = []
+    let consumed = 0
+
+    for (const match of appended.matchAll(COMPLETED_SENTENCE_PATTERN)) {
+      const sentence = match[0].trim()
+      if (sentence) completedSentences.push(sentence)
+      consumed = (match.index ?? 0) + match[0].length
+    }
+
+    if (consumed === 0) return
+
+    previous.start += consumed
+    setAnnouncement(completedSentences.join(' '))
+  }, [announce, generation, hydrated, streaming, value])
+
+  useEffect(() => {
+    const cursor = compactionRef.current
+    if (
+      announce !== 'complete' ||
+      !completeAnnouncementPendingRef.current ||
+      !hydrated ||
+      streaming ||
+      !schedulerIdleRef.current ||
+      cursor.generation !== generation ||
+      cursor.end < value.length
+    ) {
+      return
+    }
+
+    completeAnnouncementPendingRef.current = false
+    setAnnouncement(value)
+  }, [announce, compactionVersion, generation, hydrated, streaming, value])
+
+  useEffect(() => {
     const cursor = compactionRef.current
     if (
       !hydrated ||
@@ -234,7 +304,7 @@ export function RevealText({
     notifiedGenerationsRef.current.add(generation)
     onSettled?.()
     if (onComplete !== onSettled) onComplete?.()
-  })
+  }, [compactionVersion, generation, hydrated, onComplete, onSettled, streaming, value])
 
   useEffect(
     () => () => {
@@ -262,7 +332,7 @@ export function RevealText({
   const prefixEnd = normalizeCompactionEnd(reconciliation.state.units, requestedPrefixEnd)
   const renderedUnits = reconciliation.state.units.filter(({ end }) => end > prefixEnd)
 
-  return createElement(
+  const root = createElement(
     Root,
     {
       'aria-label': value,
@@ -291,5 +361,23 @@ export function RevealText({
         </RevealUnit>
       )
     }),
+  )
+
+  if (announce === 'off') return root
+
+  return createElement(
+    Fragment,
+    null,
+    root,
+    createElement(
+      'span',
+      {
+        'aria-atomic': true,
+        'aria-live': 'polite',
+        role: 'status',
+        style: liveRegionStyle,
+      },
+      announcement,
+    ),
   )
 }

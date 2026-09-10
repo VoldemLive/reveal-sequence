@@ -532,8 +532,8 @@ warnings.
   string is provided.
 - The library does not create a live region by default.
 - `announce="sentence"` updates a polite off-screen live region only when a sentence boundary is
-  completed.
-- `announce="complete"` announces only the final settled value.
+  completed. Existing text at hydration is not replayed.
+- `announce="complete"` announces the final settled value once for each stream lifecycle.
 - Reduced motion reveals content immediately.
 
 Per-token live announcements are explicitly unsupported because they create noisy and repetitive
@@ -727,10 +727,10 @@ The current POC proves:
 - scheduler batching, cancellation, reuse, and completion behavior;
 - bounded live-tail wrappers and settled-prefix compaction;
 - selection-safe final compaction and clean completed DOM;
-- readable SSR output and hydration-safe first client markup.
+- readable SSR output and hydration-safe first client markup;
+- sentence-batched and completion-based live-region announcements.
 
 The POC does not yet prove:
-- sentence-batched announcements;
 - cross-browser timing and selection behavior;
 - the final package-size budget.
 
@@ -792,6 +792,5 @@ The following questions should be answered with alpha-user evidence rather than 
 - whether `RevealGroup` belongs in the first stable release or a secondary entry point;
 - whether consumers need a public headless scheduler hook;
 - whether custom effects should accept functions in addition to keyframe objects;
-- whether sentence announcements should be included or delegated entirely to host applications;
 - whether framework-neutral adapters justify exposing the internal core;
 - whether `reveal-sequence` is the final public name.

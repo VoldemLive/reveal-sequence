@@ -32,6 +32,12 @@ npm run check
 
 <RevealText value={article} by="paragraph" mode="once" />
 
+<RevealText
+  announce="sentence"
+  streaming={isStreaming}
+  value={streamedText}
+/>
+
 <RevealGroup>
   {items.map((item) => <Card key={item.id} item={item} />)}
 </RevealGroup>
@@ -41,3 +47,7 @@ Reveal Sequence uses `Intl.Segmenter` for locale-aware tokenization and the Web 
 animation. Source-offset identities prevent a partially streamed word from replaying, while one
 deadline-aware scheduler per root keeps new content inside the configured `maxLag` budget.
 Rewrites appear immediately; newly appended text and newly inserted keyed children animate once. Server output remains readable plain text and hydrates without changing the initial markup.
+
+Accessibility is quiet by default: no live region is rendered unless `announce` is set. Use
+`announce="sentence"` to announce newly completed sentences during a stream, or
+`announce="complete"` to announce the final value once that stream has settled.

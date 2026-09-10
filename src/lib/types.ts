@@ -4,6 +4,7 @@ export type RevealEffect = 'fade' | 'fade-up' | 'blur'
 export type RevealTrigger = 'mount' | 'in-view' | 'controlled'
 export type RevealGranularity = 'grapheme' | 'word' | 'paragraph'
 export type RevealMode = 'once' | 'append'
+export type RevealAnnouncement = 'off' | 'sentence' | 'complete'
 
 export interface RevealTimingProps {
   duration?: number
@@ -14,6 +15,8 @@ export interface RevealTimingProps {
 
 export interface RevealTextProps extends RevealTimingProps {
   active?: boolean
+  /** Announces completed sentences or the final streamed value in a polite live region. */
+  announce?: RevealAnnouncement
   as?: ElementType
   by?: RevealGranularity
   className?: string
