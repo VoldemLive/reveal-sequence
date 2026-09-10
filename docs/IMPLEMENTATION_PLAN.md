@@ -26,7 +26,7 @@ built on tested reconciliation and scheduling behavior.
 
 ## Phase 3: Platform guarantees
 
-- [ ] Match server and first-client markup.
+- [x] Match server and first-client markup.
 - [ ] Add React 18 and React 19 fixture coverage.
 - [ ] Add sentence- and completion-based announcement modes.
 - [ ] Add Chromium, Firefox, and WebKit tests.

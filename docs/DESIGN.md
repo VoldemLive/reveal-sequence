@@ -726,11 +726,11 @@ The current POC proves:
 - deterministic React StrictMode animation ownership;
 - scheduler batching, cancellation, reuse, and completion behavior;
 - bounded live-tail wrappers and settled-prefix compaction;
-- selection-safe final compaction and clean completed DOM.
+- selection-safe final compaction and clean completed DOM;
+- readable SSR output and hydration-safe first client markup.
 
 The POC does not yet prove:
 - sentence-batched announcements;
-- SSR hydration behavior;
 - cross-browser timing and selection behavior;
 - the final package-size budget.
 

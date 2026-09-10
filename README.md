@@ -40,4 +40,4 @@ npm run check
 Reveal Sequence uses `Intl.Segmenter` for locale-aware tokenization and the Web Animations API for
 animation. Source-offset identities prevent a partially streamed word from replaying, while one
 deadline-aware scheduler per root keeps new content inside the configured `maxLag` budget.
-Rewrites appear immediately; newly appended text and newly inserted keyed children animate once.
+Rewrites appear immediately; newly appended text and newly inserted keyed children animate once. Server output remains readable plain text and hydrates without changing the initial markup.

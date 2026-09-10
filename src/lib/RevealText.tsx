@@ -15,6 +15,7 @@ import {
 import { reconcileText, type TextReconcileState } from './core/reconcileText'
 import { RevealUnit } from './RevealUnit'
 import type { RevealTextProps, RevealUnitPhase, TextUnit } from './types'
+import { useHydrated } from './useHydrated'
 import { useRevealScheduler } from './useRevealScheduler'
 import { useRevealTrigger } from './useRevealTrigger'
 
@@ -53,6 +54,7 @@ export function RevealText({
   const reconciliation = reconcileText(previousState, value, by, locale)
   const generation = reconciliation.state.generation
   const { active, rootRef } = useRevealTrigger(trigger, controlledActive)
+  const hydrated = useHydrated()
   const phasesRef = useRef(new Map<string, RevealUnitPhase>())
   const phaseGenerationRef = useRef(generation)
   const compactionRef = useRef<CompactionCursor>({ end: 0, generation })
@@ -65,6 +67,8 @@ export function RevealText({
   })
   const schedulerIdleRef = useRef(true)
   const notifiedGenerationsRef = useRef(new Set<number>())
+  const initialAnimationIdsRef = useRef(new Set<string>())
+  const initialAnimationPendingRef = useRef(mode === 'once')
   const compactionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const pendingFinalRef = useRef(false)
   const selectionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -86,8 +90,17 @@ export function RevealText({
     value,
   }
 
-  const pendingIds =
-    mode === 'once' && previousState !== null ? new Set<string>() : reconciliation.newUnitIds
+  if (previousState === null && reconciliation.kind === 'initial') {
+    initialAnimationIdsRef.current = reconciliation.newUnitIds
+  }
+
+  const pendingIds = !hydrated
+    ? new Set<string>()
+    : mode === 'once'
+      ? initialAnimationPendingRef.current
+        ? initialAnimationIdsRef.current
+        : new Set<string>()
+      : reconciliation.newUnitIds
   if (pendingIds.size > 0) schedulerIdleRef.current = false
 
   const updateCompaction = useCallback((next: CompactionCursor) => {
@@ -195,12 +208,20 @@ export function RevealText({
 
   useBrowserLayoutEffect(() => {
     committedStateRef.current = reconciliation.state
-    if (!streaming && schedulerIdleRef.current) queueCompaction(true)
-  }, [queueCompaction, reconciliation.state, streaming])
+
+    if (!hydrated && mode === 'append') {
+      compactionRef.current = { end: value.length, generation }
+      return
+    }
+
+    if (hydrated) initialAnimationPendingRef.current = false
+    if (hydrated && !streaming && schedulerIdleRef.current) queueCompaction(true)
+  }, [generation, hydrated, mode, queueCompaction, reconciliation.state, streaming, value])
 
   useEffect(() => {
     const cursor = compactionRef.current
     if (
+      !hydrated ||
       streaming ||
       !schedulerIdleRef.current ||
       cursor.generation !== generation ||
@@ -222,6 +243,19 @@ export function RevealText({
     },
     [clearSelectionWait],
   )
+
+  if (!hydrated) {
+    return createElement(
+      Root,
+      {
+        'aria-label': value,
+        className,
+        ref: rootRef,
+        style,
+      },
+      value,
+    )
+  }
 
   const requestedPrefixEnd =
     compactionRef.current.generation === generation ? compactionRef.current.end : 0
