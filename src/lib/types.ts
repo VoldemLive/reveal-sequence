@@ -1,15 +1,38 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
 
-export type RevealEffect = 'fade' | 'fade-up' | 'blur'
+export type RevealPresetEffect =
+  | 'fade'
+  | 'fade-up'
+  | 'fade-down'
+  | 'slide-left'
+  | 'slide-right'
+  | 'scale'
+  | 'blur'
+
+export interface RevealKeyframes {
+  easing?: string
+  keyframes: Keyframe[]
+}
+
+export type RevealEffect = RevealPresetEffect | RevealKeyframes
 export type RevealTrigger = 'mount' | 'in-view' | 'controlled'
 export type RevealGranularity = 'grapheme' | 'word' | 'paragraph'
 export type RevealMode = 'once' | 'append'
+export interface RevealInViewOptions {
+  once?: boolean
+  root?: Element | null
+  rootMargin?: string
+  threshold?: number | number[]
+}
+
 export type RevealAnnouncement = 'off' | 'sentence' | 'complete'
 
 export interface RevealTimingProps {
   duration?: number
+  easing?: string
   effect?: RevealEffect
   interval?: number
+  inView?: RevealInViewOptions
   maxLag?: number
 }
 

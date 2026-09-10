@@ -19,8 +19,10 @@ export function RevealGroup({
   children,
   className,
   duration = 420,
+  easing = 'cubic-bezier(0.22, 1, 0.36, 1)',
   effect = 'fade-up',
   interval = 70,
+  inView,
   itemAs = 'div',
   itemClassName,
   maxLag = 280,
@@ -31,7 +33,7 @@ export function RevealGroup({
 }: RevealGroupProps) {
   const childArray = Children.toArray(children)
   const seenKeysRef = useRef(new Set<string>())
-  const { active, rootRef } = useRevealTrigger(trigger, controlledActive)
+  const { active, rootRef } = useRevealTrigger(trigger, controlledActive, inView)
   const { release, schedule } = useRevealScheduler({
     interval,
     maxLag,
@@ -64,6 +66,7 @@ export function RevealGroup({
           as={itemAs}
           className={itemClassName}
           duration={duration}
+          easing={easing}
           effect={effect}
           key={key}
           pending={newKeys.has(key)}

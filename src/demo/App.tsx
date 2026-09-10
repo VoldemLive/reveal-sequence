@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { RevealGroup, RevealText, type RevealEffect } from '../lib'
+import { RevealGroup, RevealText, type RevealPresetEffect } from '../lib'
 
 const sample =
   'Streaming interfaces should feel calm, even when the network delivers text in unpredictable chunks.'
@@ -20,7 +20,7 @@ const initialCards = [
 ]
 
 export function App() {
-  const [effect, setEffect] = useState<RevealEffect>('fade-up')
+  const [effect, setEffect] = useState<RevealPresetEffect>('fade-up')
   const [staticRun, setStaticRun] = useState(0)
   const [streamText, setStreamText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
@@ -75,8 +75,12 @@ export function App() {
       <section className="toolbar" aria-label="Demo controls">
         <label>
           Effect
-          <select value={effect} onChange={(event) => setEffect(event.target.value as RevealEffect)}>
+          <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
             <option value="fade-up">Fade up</option>
+            <option value="fade-down">Fade down</option>
+            <option value="slide-left">Slide left</option>
+            <option value="slide-right">Slide right</option>
+            <option value="scale">Scale</option>
             <option value="fade">Fade</option>
             <option value="blur">Blur</option>
           </select>

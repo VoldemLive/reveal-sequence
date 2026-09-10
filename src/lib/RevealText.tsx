@@ -51,8 +51,10 @@ export function RevealText({
   by = 'word',
   className,
   duration = 420,
+  easing = 'cubic-bezier(0.22, 1, 0.36, 1)',
   effect = 'fade-up',
   interval = 42,
+  inView,
   locale,
   maxAnimatedItems = 48,
   maxLag = 240,
@@ -68,7 +70,7 @@ export function RevealText({
   const previousState = committedStateRef.current
   const reconciliation = reconcileText(previousState, value, by, locale)
   const generation = reconciliation.state.generation
-  const { active, rootRef } = useRevealTrigger(trigger, controlledActive)
+  const { active, rootRef } = useRevealTrigger(trigger, controlledActive, inView)
   const hydrated = useHydrated()
   const phasesRef = useRef(new Map<string, RevealUnitPhase>())
   const phaseGenerationRef = useRef(generation)
@@ -348,6 +350,7 @@ export function RevealText({
           active={active}
           as="span"
           duration={duration}
+          easing={easing}
           effect={effect}
           hiddenFromAssistiveTech
           key={unit.id}

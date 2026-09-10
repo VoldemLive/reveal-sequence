@@ -61,3 +61,33 @@ Rewrites appear immediately; newly appended text and newly inserted keyed childr
 Accessibility is quiet by default: no live region is rendered unless `announce` is set. Use
 `announce="sentence"` to announce newly completed sentences during a stream, or
 `announce="complete"` to announce the final value once that stream has settled.
+
+## Motion and triggers
+
+Use GPU-friendly presets: `fade`, `fade-up`, `fade-down`, `slide-left`, `slide-right`,
+and `scale`. `blur` is available for short content but is more expensive.
+
+```tsx
+<RevealText
+  value={text}
+  effect="slide-right"
+  easing="cubic-bezier(.22, 1, .36, 1)"
+  duration={280}
+  trigger="in-view"
+  inView={{ rootMargin: '0px 0px -12% 0px', threshold: 0.2 }}
+/>
+
+<RevealText
+  value={text}
+  effect={{
+    easing: 'linear',
+    keyframes: [
+      { opacity: 0, transform: 'scale(.96)' },
+      { opacity: 1, transform: 'scale(1)' },
+    ],
+  }}
+/>
+```
+
+The scheduler continues to own delays and batching, so custom visual settings cannot bypass the
+configured `maxLag` budget.

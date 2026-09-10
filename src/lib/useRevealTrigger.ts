@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import type { RevealTrigger } from './types'
+import type { RevealInViewOptions, RevealTrigger } from './types'
 
-export function useRevealTrigger(trigger: RevealTrigger, controlledActive: boolean) {
+export function useRevealTrigger(
+  trigger: RevealTrigger,
+  controlledActive: boolean,
+  inViewOptions: RevealInViewOptions | undefined,
+) {
   const rootRef = useRef<HTMLElement | null>(null)
-  const [inView, setInView] = useState(trigger !== 'in-view')
+  const [isInView, setInView] = useState(trigger !== 'in-view')
 
   useEffect(() => {
     if (trigger !== 'in-view' || !rootRef.current) return
@@ -14,20 +18,22 @@ export function useRevealTrigger(trigger: RevealTrigger, controlledActive: boole
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          observer.disconnect()
-        }
+        setInView(entry.isIntersecting)
+        if (entry.isIntersecting && inViewOptions?.once !== false) observer.disconnect()
       },
-      { threshold: 0.15 },
+      {
+        root: inViewOptions?.root,
+        rootMargin: inViewOptions?.rootMargin,
+        threshold: inViewOptions?.threshold ?? 0.15,
+      },
     )
 
     observer.observe(rootRef.current)
     return () => observer.disconnect()
-  }, [trigger])
+  }, [inViewOptions?.once, inViewOptions?.root, inViewOptions?.rootMargin, inViewOptions?.threshold, trigger])
 
   return {
-    active: trigger === 'controlled' ? controlledActive : inView,
+    active: trigger === 'controlled' ? controlledActive : isInView,
     rootRef,
   }
 }

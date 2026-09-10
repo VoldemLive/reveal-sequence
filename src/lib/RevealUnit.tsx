@@ -6,7 +6,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react'
-import { getEffectKeyframes, getInitialFrame, prefersReducedMotion } from './animation'
+import { getEffectEasing, getEffectKeyframes, getInitialFrame, prefersReducedMotion } from './animation'
 import type { RevealEffect, RevealUnitPhase } from './types'
 
 const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
@@ -17,6 +17,7 @@ interface RevealUnitProps {
   children: ReactNode
   className?: string
   duration: number
+  easing: string
   effect: RevealEffect
   hiddenFromAssistiveTech?: boolean
   onPhaseChange?: (id: string, phase: RevealUnitPhase) => void
@@ -39,6 +40,7 @@ export function RevealUnit({
   children,
   className,
   duration,
+  easing,
   effect,
   hiddenFromAssistiveTech = false,
   onPhaseChange,
@@ -52,7 +54,7 @@ export function RevealUnit({
   const hasAnimatedRef = useRef(!pending)
   const settledRef = useRef(!pending)
   const animationRef = useRef<Animation | null>(null)
-  const animationConfigRef = useRef({ duration, effect })
+  const animationConfigRef = useRef({ duration, easing, effect })
 
   useBrowserLayoutEffect(() => {
     const element = elementRef.current
@@ -80,7 +82,10 @@ export function RevealUnit({
 
         const animation = element.animate(getEffectKeyframes(animationConfigRef.current.effect), {
           duration: animationConfigRef.current.duration,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          easing: getEffectEasing(
+            animationConfigRef.current.effect,
+            animationConfigRef.current.easing,
+          ),
           fill: 'both',
         })
         animationRef.current = animation
