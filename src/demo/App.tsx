@@ -27,7 +27,7 @@ const previewEffects: ReadonlyArray<{ value: RevealPresetEffect; icon: string; l
   { value: 'fade-down', icon: '↓', label: 'Fade down' },
   { value: 'slide-left', icon: '←', label: 'Slide left' },
   { value: 'slide-right', icon: '→', label: 'Slide right' },
-  { value: 'scale', icon: '⤢', label: 'Scale' },
+  { value: 'scale', icon: 'scale', label: 'Scale' },
   { value: 'fade', icon: '◐', label: 'Fade' },
   { value: 'blur', icon: '✦', label: 'Blur' },
 ]
@@ -157,7 +157,13 @@ export function App() {
                   title={preset.label}
                   onClick={() => setPreviewEffect(preset.value)}
                 >
-                  <span aria-hidden="true">{preset.icon}</span>
+                  {preset.value === 'scale' ? (
+                    <svg className="scale-effect-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5" />
+                    </svg>
+                  ) : (
+                    <span aria-hidden="true">{preset.icon}</span>
+                  )}
                 </button>
               ))}
             </div>
