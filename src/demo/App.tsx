@@ -34,6 +34,7 @@ export function App() {
   const [staticRun, setStaticRun] = useState(0)
   const [cards, setCards] = useState(initialCards)
   const timers = useRef<number[]>([])
+  const streamDemoRef = useRef<HTMLElement>(null)
 
   const selectedChunks = useMemo(
     () =>
@@ -67,6 +68,17 @@ export function App() {
     )
   }
 
+  const playStreamInView = () => {
+    runStream()
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    window.requestAnimationFrame(() => {
+      streamDemoRef.current?.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+        block: 'center',
+      })
+    })
+  }
   const runBurst = () => {
     stopStream()
     setIsBurst(true)
@@ -120,8 +132,8 @@ export function App() {
             preserves what is read, and keeps a hard budget on live animation wrappers.
           </p>
           <div className="hero-actions">
-            <button className="button primary" disabled={isStreaming} onClick={runStream}>
-              {isStreaming ? 'Streaming…' : 'Play the stream'}
+            <button className="button primary" disabled={isStreaming} onClick={playStreamInView}>
+              {isStreaming ? 'Streaming…' : 'Play live stream ↓'}
             </button>
             <button className="button ghost" onClick={() => setStaticRun((run) => run + 1)}>
               Replay headline
@@ -222,7 +234,7 @@ export function App() {
             </button>
           </aside>
 
-          <article className="stream-card">
+          <article className="stream-card" ref={streamDemoRef} tabIndex={-1} aria-label="Live stream output">
             <div className="card-topline">
               <span className="signal"><i />LIVE STREAM</span>
               <span>{isBurst ? 'WORD / BURST' : `${granularity.toUpperCase()} / APPEND`}</span>
