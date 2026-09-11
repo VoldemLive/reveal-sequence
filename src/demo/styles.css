@@ -172,7 +172,7 @@ body { background: radial-gradient(circle at 96% 4%, rgba(91, 86, 232, .11), tra
 .control-deck output { color: #5b56e8; }
 .control-deck select { border-color: rgba(25, 26, 29, .13); border-radius: .75rem; color: #25252a; background: rgba(255,255,255,.74); }
 .control-deck input { accent-color: #5b56e8; }
-.stream-card { min-height: 370px; padding: clamp(1.35rem, 3vw, 2rem); border-color: rgba(25, 26, 29, .1); border-radius: 1.8rem; background: #191a1d; box-shadow: 0 22px 45px rgba(40, 34, 29, .13); }
+.stream-card { min-height: 370px; padding: clamp(1.35rem, 3vw, 2rem); border-color: rgba(25, 26, 29, .12); border-radius: 1.8rem; background: linear-gradient(145deg, #45434a, #323138); box-shadow: 0 14px 30px rgba(40, 34, 29, .09); }
 .card-topline { color: #acaab3; }
 .signal { color: #8bd6c0; }
 .assistant-avatar { border-radius: .82rem; color: #191a1d; background: #8bd6c0; }
