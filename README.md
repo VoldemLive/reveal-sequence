@@ -105,3 +105,13 @@ without replaying its animation when its terminator arrives.
   value={streamedText}
 />
 ```
+
+## Bounded animated tail
+
+`maxAnimatedItems` is a configurable safety limit, not a truncation limit. When a burst exceeds
+it, older queued units become ordinary visible text immediately; only the newest tail keeps reveal
+wrappers and motion. The default is `48`.
+
+```tsx
+<RevealText streaming value={text} maxAnimatedItems={24} />
+```

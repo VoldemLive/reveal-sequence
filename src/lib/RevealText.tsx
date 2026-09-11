@@ -9,6 +9,7 @@ import {
 } from 'react'
 import {
   getBoundedCompactionEnd,
+  getOverflowCompactionEnd,
   normalizeCompactionEnd,
   selectionBelongsTo,
   type CompactionCursor,
@@ -118,13 +119,26 @@ export function RevealText({
     initialAnimationIdsRef.current = reconciliation.newUnitIds
   }
 
-  const pendingIds = !hydrated
+  const selection =
+    typeof window === 'undefined' || typeof window.getSelection !== 'function'
+      ? null
+      : window.getSelection()
+  const queueOverflowEnd = selectionBelongsTo(rootRef.current, selection)
+    ? 0
+    : getOverflowCompactionEnd(reconciliation.state.units, maxAnimatedItems)
+  const candidatePendingIds = !hydrated
     ? new Set<string>()
     : mode === 'once'
       ? initialAnimationPendingRef.current
         ? initialAnimationIdsRef.current
         : new Set<string>()
       : reconciliation.newUnitIds
+  const pendingIds = new Set(
+    [...candidatePendingIds].filter((id) => {
+      const unit = reconciliation.state.units.find((candidate) => candidate.id === id)
+      return unit !== undefined && unit.end > queueOverflowEnd
+    }),
+  )
   if (pendingIds.size > 0) schedulerIdleRef.current = false
 
   const updateCompaction = useCallback((next: CompactionCursor) => {
@@ -331,7 +345,10 @@ export function RevealText({
 
   const requestedPrefixEnd =
     compactionRef.current.generation === generation ? compactionRef.current.end : 0
-  const prefixEnd = normalizeCompactionEnd(reconciliation.state.units, requestedPrefixEnd)
+  const prefixEnd = normalizeCompactionEnd(
+    reconciliation.state.units,
+    Math.max(requestedPrefixEnd, queueOverflowEnd),
+  )
   const renderedUnits = reconciliation.state.units.filter(({ end }) => end > prefixEnd)
 
   const root = createElement(

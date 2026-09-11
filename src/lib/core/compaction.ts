@@ -16,6 +16,28 @@ export function normalizeCompactionEnd(
   return overlappingUnit?.start ?? boundedEnd
 }
 
+export function getOverflowCompactionEnd(
+  units: TextUnit[],
+  maxAnimatedItems: number,
+): number {
+  const overflow = Math.max(
+    0,
+    units.filter(({ animated }) => animated).length - Math.max(0, maxAnimatedItems),
+  )
+  if (overflow === 0) return 0
+
+  let compactedContent = 0
+  let nextEnd = 0
+
+  for (const unit of units) {
+    if (unit.animated && compactedContent >= overflow) break
+    nextEnd = unit.end
+    if (unit.animated) compactedContent += 1
+  }
+
+  return nextEnd
+}
+
 export function getBoundedCompactionEnd(
   units: TextUnit[],
   currentEnd: number,

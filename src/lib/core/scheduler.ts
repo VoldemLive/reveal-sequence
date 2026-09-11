@@ -67,7 +67,7 @@ export class RevealScheduler {
     this.queue = this.queue.filter((task) => task.token !== token)
     if (this.queue.length === 0 && this.activeCount === 0) {
       this.clearTimer()
-      this.idleArmed = false
+      this.emitIdle()
     }
   }
 

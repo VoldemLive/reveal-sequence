@@ -140,9 +140,11 @@ describe('RevealText', () => {
         value={value}
       />,
     )
+    const root = getByLabelText(value)
+    expect(root.querySelectorAll('span')).toHaveLength(2)
+
     await act(() => vi.runAllTimersAsync())
 
-    const root = getByLabelText(value)
     expect(root.querySelectorAll('span')).toHaveLength(2)
     expect(root.textContent).toBe(value)
     expect(onSettled).not.toHaveBeenCalled()

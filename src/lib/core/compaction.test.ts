@@ -2,10 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { segmentTextUnits } from '../segment'
 import {
   getBoundedCompactionEnd,
+  getOverflowCompactionEnd,
   normalizeCompactionEnd,
 } from './compaction'
 
 describe('text compaction', () => {
+  it('compacts overflow before queued units create wrappers', () => {
+    const value = 'one two three four'
+    const units = segmentTextUnits(value, 'word', 0)
+
+    expect(value.slice(0, getOverflowCompactionEnd(units, 2))).toBe('one two ')
+  })
+
   it('compacts only the settled overflow and its following separator', () => {
     const units = segmentTextUnits('one two three', 'word', 0)
     const phases = new Map(
