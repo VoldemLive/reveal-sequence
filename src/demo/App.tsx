@@ -1,33 +1,48 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { RevealGroup, RevealText, type RevealPresetEffect } from '../lib'
+import {
+  RevealGroup,
+  RevealText,
+  type RevealGranularity,
+  type RevealPresetEffect,
+} from '../lib'
 
-const sample =
-  'Streaming interfaces should feel calm, even when the network delivers text in unpredictable chunks.'
-
-const chunks = [
-  'Streaming ',
-  'interfaces should ',
-  'feel calm, ',
-  'even when ',
-  'the network delivers ',
-  'text in ',
-  'unpredictable chunks.',
+const narrativeChunks = [
+  'Streaming UI should feel responsive, even when the network is not. ',
+  'Reveal Sequence keeps the past stable and animates only the arriving tail. ',
+  'When a burst arrives, it protects the DOM before decorative motion.',
 ]
 
+const burstText = Array.from(
+  { length: 96 },
+  (_, index) => `chunk-${String(index + 1).padStart(2, '0')}`,
+).join(' ')
+
 const initialCards = [
-  { id: 1, label: 'Stable content', detail: 'Existing elements never animate twice.' },
-  { id: 2, label: 'Adaptive pacing', detail: 'Large chunks automatically use a tighter stagger.' },
+  { id: 1, label: 'Stable history', detail: 'Previous content remains inert after each append.' },
+  { id: 2, label: 'Latency budget', detail: 'The scheduler accelerates before motion falls behind.' },
 ]
 
 export function App() {
   const [effect, setEffect] = useState<RevealPresetEffect>('fade-up')
-  const [staticRun, setStaticRun] = useState(0)
+  const [granularity, setGranularity] = useState<RevealGranularity>('word')
+  const [duration, setDuration] = useState(420)
+  const [maxAnimatedItems, setMaxAnimatedItems] = useState(24)
   const [streamText, setStreamText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [isBurst, setIsBurst] = useState(false)
+  const [liveWrappers, setLiveWrappers] = useState(0)
+  const [staticRun, setStaticRun] = useState(0)
   const [cards, setCards] = useState(initialCards)
   const timers = useRef<number[]>([])
 
-  const unevenDelays = useMemo(() => [0, 160, 510, 660, 1120, 1230, 1720], [])
+  const selectedChunks = useMemo(
+    () =>
+      granularity === 'sentence'
+        ? narrativeChunks
+        : narrativeChunks.flatMap((sentence) => sentence.match(/\S+\s*/gu) ?? []),
+    [granularity],
+  )
+  const activeGranularity = isBurst ? 'word' : granularity
 
   const stopStream = () => {
     for (const timer of timers.current) window.clearTimeout(timer)
@@ -37,18 +52,38 @@ export function App() {
 
   const runStream = () => {
     stopStream()
+    setIsBurst(false)
     setStreamText('')
     setIsStreaming(true)
 
-    timers.current = chunks.map((chunk, index) =>
-      window.setTimeout(() => {
-        setStreamText((current) => current + chunk)
-        if (index === chunks.length - 1) setIsStreaming(false)
-      }, unevenDelays[index]),
+    timers.current = selectedChunks.map((chunk, index) =>
+      window.setTimeout(
+        () => {
+          setStreamText((current) => current + chunk)
+          if (index === selectedChunks.length - 1) setIsStreaming(false)
+        },
+        index === 0 ? 0 : index * (granularity === 'sentence' ? 640 : 72),
+      ),
     )
   }
 
+  const runBurst = () => {
+    stopStream()
+    setIsBurst(true)
+    setStreamText(burstText)
+    setIsStreaming(true)
+    timers.current = [window.setTimeout(() => setIsStreaming(false), 900)]
+  }
+
   useEffect(() => () => stopStream(), [])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const root = document.querySelector('.stream-output')
+      setLiveWrappers(root?.querySelectorAll('span[aria-hidden="true"]').length ?? 0)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [streamText, isStreaming, maxAnimatedItems])
 
   const addCard = () => {
     const id = cards.length + 1
@@ -56,92 +91,209 @@ export function App() {
       ...current,
       {
         id,
-        label: `New element ${id}`,
-        detail: 'Only this keyed child receives an entrance animation.',
+        label: `New event ${id}`,
+        detail: 'Only this keyed React child receives entrance motion.',
       },
     ])
   }
 
+  const code = `<RevealText\n  by="${activeGranularity}"\n  effect="${effect}"\n  duration={${duration}}\n  maxAnimatedItems={${maxAnimatedItems}}\n  streaming={isStreaming}\n  value={text}\n/>`
+
   return (
-    <main className="shell">
-      <header className="hero">
-        <div className="eyebrow">REVEAL SEQUENCE / DEVELOPMENT PREVIEW</div>
-        <h1>One reveal engine for text, streams, and UI.</h1>
-        <p>
-          A zero-runtime-dependency experiment that animates only the content that has just appeared.
-        </p>
-      </header>
+    <main className="playground-shell">
+      <nav className="topbar" aria-label="Reveal Sequence">
+        <a className="wordmark" href="#top" aria-label="Reveal Sequence home">
+          reveal<span>sequence</span>
+        </a>
+        <div className="topbar-meta">
+          <span>React primitive</span>
+          <a href="https://github.com/VoldemLive/reveal-sequence">GitHub ↗</a>
+        </div>
+      </nav>
 
-      <section className="toolbar" aria-label="Demo controls">
-        <label>
-          Effect
-          <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
-            <option value="fade-up">Fade up</option>
-            <option value="fade-down">Fade down</option>
-            <option value="slide-left">Slide left</option>
-            <option value="slide-right">Slide right</option>
-            <option value="scale">Scale</option>
-            <option value="fade">Fade</option>
-            <option value="blur">Blur</option>
-          </select>
-        </label>
-        <button onClick={() => setStaticRun((run) => run + 1)}>Replay static text</button>
-        <button className="primary" disabled={isStreaming} onClick={runStream}>
-          {isStreaming ? 'Streaming…' : 'Run uneven stream'}
-        </button>
-      </section>
-
-      <section className="demo-grid">
-        <article className="panel text-panel">
-          <div className="panel-heading">
-            <span>01</span>
-            <h2>Static words</h2>
+      <header className="hero" id="top">
+        <div className="hero-copy">
+          <p className="eyebrow">APPEND-AWARE REVEAL ENGINE</p>
+          <h1>Make incoming content feel intentional.</h1>
+          <p className="hero-lede">
+            A React primitive for streams, text, and incremental UI. It animates what is new,
+            preserves what is read, and keeps a hard budget on live animation wrappers.
+          </p>
+          <div className="hero-actions">
+            <button className="button primary" disabled={isStreaming} onClick={runStream}>
+              {isStreaming ? 'Streaming…' : 'Play the stream'}
+            </button>
+            <button className="button ghost" onClick={() => setStaticRun((run) => run + 1)}>
+              Replay headline
+            </button>
           </div>
+        </div>
+
+        <section className="hero-stage" aria-label="Live headline preview">
+          <div className="stage-orbit orbit-one" />
+          <div className="stage-orbit orbit-two" />
+          <p className="stage-label">STATIC / WORD</p>
           <RevealText
             as="p"
             by="word"
-            className="large-copy"
+            className="stage-copy"
+            duration={duration}
             effect={effect}
             key={staticRun}
             mode="once"
-            value={sample}
+            value="New content deserves a first impression."
           />
-          <code>by=&quot;word&quot; mode=&quot;once&quot;</code>
-        </article>
-
-        <article className="panel stream-panel">
-          <div className="panel-heading">
-            <span>02</span>
-            <h2>Append-aware stream</h2>
+          <div className="stage-footer">
+            <span>SSR-safe</span>
+            <span>Reduced-motion aware</span>
           </div>
-          <div className="stream-window">
-            <span className="assistant-mark">A</span>
-            {streamText ? (
-              <RevealText
-                as="p"
-                by="word"
-                className="stream-copy"
-                effect={effect}
-                interval={48}
-                maxAnimatedItems={8}
-                maxLag={180}
-                mode="append"
-                streaming={isStreaming}
-                value={streamText}
+        </section>
+      </header>
+
+      <section className="proof-strip" aria-label="Product guarantees">
+        <div><strong>Append-aware</strong><span>Stable content never replays.</span></div>
+        <div><strong>Latency-bounded</strong><span>Motion yields before data feels late.</span></div>
+        <div><strong>DOM-conscious</strong><span>Only the newest tail keeps wrappers.</span></div>
+      </section>
+
+      <section className="studio" aria-labelledby="studio-title">
+        <div className="section-intro">
+          <p className="eyebrow">INTERACTIVE STUDIO</p>
+          <h2 id="studio-title">Tune the feeling. Keep the contract.</h2>
+          <p>
+            These controls change the real component. The scheduler still owns batching and
+            latency, regardless of the visual treatment you choose.
+          </p>
+        </div>
+
+        <div className="studio-grid">
+          <aside className="control-deck" aria-label="Reveal controls">
+            <label>
+              Effect
+              <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
+                <option value="fade-up">Fade up</option>
+                <option value="fade-down">Fade down</option>
+                <option value="slide-left">Slide left</option>
+                <option value="slide-right">Slide right</option>
+                <option value="scale">Scale</option>
+                <option value="fade">Fade</option>
+                <option value="blur">Blur</option>
+              </select>
+            </label>
+            <label>
+              Granularity
+              <select
+                value={granularity}
+                onChange={(event) => setGranularity(event.target.value as RevealGranularity)}
+              >
+                <option value="grapheme">Grapheme</option>
+                <option value="word">Word</option>
+                <option value="sentence">Sentence</option>
+                <option value="paragraph">Paragraph</option>
+              </select>
+            </label>
+            <label>
+              Duration <output>{duration}ms</output>
+              <input
+                type="range"
+                min="160"
+                max="720"
+                step="20"
+                value={duration}
+                onChange={(event) => setDuration(Number(event.target.value))}
               />
-            ) : (
-              <p className="placeholder">Run the stream to simulate uneven network chunks.</p>
-            )}
+            </label>
+            <label>
+              Animated tail <output>{maxAnimatedItems}</output>
+              <input
+                type="range"
+                min="4"
+                max="48"
+                step="4"
+                value={maxAnimatedItems}
+                onChange={(event) => setMaxAnimatedItems(Number(event.target.value))}
+              />
+            </label>
+            <button className="button primary wide" disabled={isStreaming} onClick={runStream}>
+              Run uneven stream
+            </button>
+            <button className="button ghost wide" disabled={isStreaming} onClick={runBurst}>
+              Run 96-word burst
+            </button>
+          </aside>
+
+          <article className="stream-card">
+            <div className="card-topline">
+              <span className="signal"><i />LIVE STREAM</span>
+              <span>{isBurst ? 'WORD / BURST' : `${granularity.toUpperCase()} / APPEND`}</span>
+            </div>
+            <div className="chat-row">
+              <div className="assistant-avatar">R</div>
+              {streamText ? (
+                <RevealText
+                  as="p"
+                  by={activeGranularity}
+                  className="stream-output"
+                  duration={duration}
+                  effect={effect}
+                  interval={42}
+                  maxAnimatedItems={maxAnimatedItems}
+                  maxLag={180}
+                  mode="append"
+                  streaming={isStreaming}
+                  value={streamText}
+                />
+              ) : (
+                <p className="stream-placeholder">Choose a mode, then run the stream.</p>
+              )}
+            </div>
+            <div className="stream-metrics">
+              <div>
+                <span>Live wrappers</span>
+                <strong>{streamText ? liveWrappers : '—'} / {maxAnimatedItems}</strong>
+              </div>
+              <div>
+                <span>Max start lag</span>
+                <strong>180ms</strong>
+              </div>
+              <div>
+                <span>Stream state</span>
+                <strong>{isStreaming ? 'Receiving' : streamText ? 'Settled' : 'Ready'}</strong>
+              </div>
+            </div>
+          </article>
+
+          <pre className="code-card" aria-label="Current API example"><code>{code}</code></pre>
+        </div>
+      </section>
+
+      <section className="systems-grid">
+        <article className="feature-panel burst-panel">
+          <div>
+            <p className="eyebrow">UNDER PRESSURE</p>
+            <h2>Long streams stay light.</h2>
           </div>
-          <code>mode=&quot;append&quot; maxLag={'{180}'}</code>
+          <p>
+            A burst does not create hundreds of permanent spans. Older queued content becomes
+            ordinary text; motion stays focused on the newest configurable tail.
+          </p>
+          <div className="tail-diagram" aria-hidden="true">
+            <span className="settled-tail" />
+            <span className="settled-tail" />
+            <span className="settled-tail" />
+            <span className="active-tail" />
+            <span className="active-tail" />
+            <span className="active-tail" />
+          </div>
+          <div className="diagram-labels"><span>plain text history</span><span>animated tail</span></div>
         </article>
 
-        <article className="panel group-panel">
-          <div className="panel-heading">
-            <span>03</span>
-            <h2>Keyed React children</h2>
+        <article className="feature-panel group-panel">
+          <div>
+            <p className="eyebrow">INCREMENTAL UI</p>
+            <h2>It also understands React children.</h2>
           </div>
-          <RevealGroup className="card-list" effect={effect} itemClassName="feature-card">
+          <RevealGroup className="event-list" duration={duration} effect={effect} itemClassName="event-card">
             {cards.map((card) => (
               <div key={card.id}>
                 <strong>{card.label}</strong>
@@ -149,15 +301,15 @@ export function App() {
               </div>
             ))}
           </RevealGroup>
-          <button onClick={addCard}>Add one element</button>
+          <button className="button ghost" onClick={addCard}>Add an event</button>
         </article>
       </section>
 
-      <footer>
-        <span>React 19</span>
+      <footer className="footer">
+        <span>React 18 / 19</span>
         <span>Web Animations API</span>
         <span>Intl.Segmenter</span>
-        <span>Reduced motion aware</span>
+        <span>Zero runtime dependencies</span>
       </footer>
     </main>
   )
