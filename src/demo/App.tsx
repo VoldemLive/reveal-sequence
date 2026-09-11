@@ -22,6 +22,8 @@ const initialCards = [
   { id: 2, label: 'Latency budget', detail: 'The scheduler accelerates before motion falls behind.' },
 ]
 
+const maxEventCards = 4
+
 const previewEffects: ReadonlyArray<{ value: RevealPresetEffect; icon: string; label: string }> = [
   { value: 'fade-up', icon: '↑', label: 'Fade up' },
   { value: 'fade-down', icon: '↓', label: 'Fade down' },
@@ -43,6 +45,11 @@ export function App() {
   const [liveWrappers, setLiveWrappers] = useState(0)
   const [staticRun, setStaticRun] = useState(0)
   const [cards, setCards] = useState(initialCards)
+  const [exitingCardIds, setExitingCardIds] = useState<number[]>([])
+  const [showAddControl, setShowAddControl] = useState(true)
+  const [isAddControlExiting, setIsAddControlExiting] = useState(false)
+  const nextCardId = useRef(initialCards.length + 1)
+  const cardCount = useRef(initialCards.length)
   const timers = useRef<number[]>([])
 
   const selectedChunks = useMemo(
@@ -101,7 +108,11 @@ export function App() {
   }, [streamText, isStreaming, maxAnimatedItems])
 
   const addCard = () => {
-    const id = cards.length + 1
+    if (cardCount.current >= maxEventCards || isAddControlExiting) return
+
+    const id = nextCardId.current
+    nextCardId.current += 1
+    cardCount.current += 1
     setCards((current) => [
       ...current,
       {
@@ -110,6 +121,29 @@ export function App() {
         detail: 'Only this keyed React child receives entrance motion.',
       },
     ])
+    if (cardCount.current === maxEventCards) setIsAddControlExiting(true)
+  }
+
+  const removeCard = (id: number) => {
+    setExitingCardIds((current) => (current.includes(id) ? current : [...current, id]))
+  }
+
+  const finalizeCardRemoval = (id: number) => {
+    cardCount.current -= 1
+    setCards((current) => current.filter((card) => card.id !== id))
+    setExitingCardIds((current) => current.filter((cardId) => cardId !== id))
+    setShowAddControl(true)
+  }
+
+  const finalizeAddControlExit = () => {
+    if (!isAddControlExiting) return
+    if (cardCount.current < maxEventCards) {
+      setIsAddControlExiting(false)
+      setShowAddControl(true)
+      return
+    }
+    setShowAddControl(false)
+    setIsAddControlExiting(false)
   }
 
   const code = `<RevealText\n  by="${activeGranularity}"\n  effect="${effect}"\n  duration={${duration}}\n  maxAnimatedItems={${maxAnimatedItems}}\n  streaming={isStreaming}\n  value={text}\n/>`
@@ -290,15 +324,15 @@ export function App() {
         </div>
       </section>
 
-      <section className="systems-grid">
-        <article className="feature-panel burst-panel">
+      <section className="systems-grid" aria-label="Runtime safeguards and group demo">
+        <article className="architecture-note">
           <div>
-            <p className="eyebrow">UNDER PRESSURE</p>
-            <h2>Long streams stay light.</h2>
+            <p className="eyebrow">RUNTIME SAFEGUARD</p>
+            <h2>Wrappers are a tail, not history.</h2>
           </div>
           <p>
-            A burst does not create hundreds of permanent spans. Older queued content becomes
-            ordinary text; motion stays focused on the newest configurable tail.
+            <code>maxAnimatedItems</code> is a hard budget. When a burst arrives, older content
+            returns to ordinary text and only the newest configurable tail keeps motion wrappers.
           </p>
           <div className="tail-diagram" aria-hidden="true">
             <span className="settled-tail" />
@@ -308,23 +342,59 @@ export function App() {
             <span className="active-tail" />
             <span className="active-tail" />
           </div>
-          <div className="diagram-labels"><span>plain text history</span><span>animated tail</span></div>
+          <div className="diagram-labels"><span>plain text history</span><span>bounded animated tail</span></div>
         </article>
 
-        <article className="feature-panel group-panel">
-          <div>
-            <p className="eyebrow">INCREMENTAL UI</p>
-            <h2>It also understands React children.</h2>
+        <article className="feature-panel group-panel" aria-label="Interactive RevealGroup demo">
+          <div className="group-panel-heading">
+            <div>
+              <p className="eyebrow">LIVE GROUP DEMO</p>
+              <h2>Animate incremental React children.</h2>
+            </div>
+            <span className="event-count">{cards.length} / {maxEventCards}</span>
           </div>
-          <RevealGroup className="event-list" duration={duration} effect={effect} itemClassName="event-card">
-            {cards.map((card) => (
-              <div key={card.id}>
-                <strong>{card.label}</strong>
-                <span>{card.detail}</span>
-              </div>
-            ))}
+          <RevealGroup className="event-list" duration={duration} effect={effect} itemClassName="event-reveal">
+            {cards.map((card) => {
+              const isExiting = exitingCardIds.includes(card.id)
+
+              return (
+                <article
+                  className={`event-card${isExiting ? ` is-exiting exit-${effect}` : ''}`}
+                  key={card.id}
+                  onAnimationEnd={() => {
+                    if (isExiting) finalizeCardRemoval(card.id)
+                  }}
+                >
+                  <div>
+                    <strong>{card.label}</strong>
+                    <span>{card.detail}</span>
+                  </div>
+                  <button
+                    aria-label={`Remove ${card.label}`}
+                    className="event-remove"
+                    disabled={isExiting}
+                    onClick={() => removeCard(card.id)}
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </article>
+              )
+            })}
+            {showAddControl ? (
+              <button
+                className={`event-add${isAddControlExiting ? ` is-exiting exit-${effect}` : ''}`}
+                disabled={isAddControlExiting}
+                key="add-event"
+                onAnimationEnd={finalizeAddControlExit}
+                onClick={addCard}
+                type="button"
+              >
+                <span>Add an event</span>
+                <span aria-hidden="true">+</span>
+              </button>
+            ) : null}
           </RevealGroup>
-          <button className="button ghost" onClick={addCard}>Add an event</button>
         </article>
       </section>
 

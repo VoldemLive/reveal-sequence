@@ -231,3 +231,114 @@ body { background: radial-gradient(circle at 96% 4%, rgba(91, 86, 232, .11), tra
   .stage-copy { max-inline-size: 12ch; font-size: clamp(2.2rem, 11vw, 3.25rem); }
 }
 .scale-effect-icon { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+
+
+/* The runtime safeguard is documentation; RevealGroup is the interactive surface. */
+.architecture-note {
+  display: flex;
+  min-height: 360px;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.45rem, 3vw, 2rem);
+  border-block: 1px solid rgba(25, 26, 29, .11);
+}
+.architecture-note h2 {
+  margin: .9rem 0 0;
+  color: #191a1d;
+  font-size: clamp(2.05rem, 3.4vw, 3.35rem);
+  letter-spacing: -.075em;
+  line-height: .9;
+}
+.architecture-note > p {
+  max-width: 35rem;
+  margin: 0;
+  color: #67656b;
+  font-size: 1rem;
+  line-height: 1.68;
+}
+.architecture-note code {
+  padding: .12em .32em;
+  border-radius: .35rem;
+  color: #4843bd;
+  background: rgba(91, 86, 232, .09);
+  font: 650 .86em ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.architecture-note .tail-diagram { margin-top: auto; }
+.group-panel { gap: 1.15rem; }
+.group-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.group-panel-heading h2 { max-width: 12ch; }
+.event-count {
+  flex: 0 0 auto;
+  margin-top: .12rem;
+  padding: .42rem .58rem;
+  border: 1px solid rgba(25, 26, 29, .11);
+  border-radius: 999px;
+  color: #5b56e8;
+  background: rgba(91, 86, 232, .07);
+  font: 700 .72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.event-list { align-content: start; }
+.event-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .85rem;
+}
+.event-card > div { min-width: 0; }
+.event-remove {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #77747c;
+  background: transparent;
+  font-size: 1.22rem;
+  line-height: 1;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+.event-remove:hover:not(:disabled) { border-color: rgba(25, 26, 29, .12); color: #302e34; background: rgba(255,255,255,.74); }
+.event-remove:focus-visible, .event-add:focus-visible { outline: 2px solid #5b56e8; outline-offset: 2px; }
+.event-add {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: .82rem .9rem;
+  border: 1px dashed rgba(25, 26, 29, .2);
+  border-radius: .85rem;
+  color: #302e34;
+  background: rgba(255,255,255,.38);
+  font: 700 .86rem inherit;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+.event-add:hover:not(:disabled) { border-color: rgba(91, 86, 232, .55); color: #4843bd; background: rgba(255,255,255,.82); }
+.event-add > span:last-child { color: #5b56e8; font-size: 1.15rem; line-height: .8; }
+.event-card.is-exiting, .event-add.is-exiting {
+  pointer-events: none;
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+  animation-fill-mode: both;
+}
+.exit-fade { animation-name: event-exit-fade; }
+.exit-fade-up { animation-name: event-exit-fade-up; }
+.exit-fade-down { animation-name: event-exit-fade-down; }
+.exit-slide-left { animation-name: event-exit-slide-left; }
+.exit-slide-right { animation-name: event-exit-slide-right; }
+.exit-scale { animation-name: event-exit-scale; }
+.exit-blur { animation-name: event-exit-blur; }
+@keyframes event-exit-fade { to { opacity: 0; } }
+@keyframes event-exit-fade-up { to { opacity: 0; transform: translateY(.55em); } }
+@keyframes event-exit-fade-down { to { opacity: 0; transform: translateY(-.55em); } }
+@keyframes event-exit-slide-left { to { opacity: 0; transform: translateX(-.55em); } }
+@keyframes event-exit-slide-right { to { opacity: 0; transform: translateX(.55em); } }
+@keyframes event-exit-scale { to { opacity: 0; transform: scale(.96); } }
+@keyframes event-exit-blur { to { opacity: 0; filter: blur(7px); transform: translateY(.2em); } }
+@media (max-width: 540px) {
+  .architecture-note { min-height: 300px; padding-inline: .15rem; }
+  .group-panel-heading { align-items: flex-end; }
+  .group-panel-heading h2 { max-width: 11ch; }
+}
