@@ -28,7 +28,7 @@ button:disabled { cursor: progress; opacity: .58; }
   padding: 1.25rem 0 2rem;
 }
 
-.topbar, .topbar-meta, .hero-actions, .proof-strip, .stream-metrics, .card-topline, .diagram-labels, .footer {
+.topbar, .topbar-meta, .proof-strip, .stream-metrics, .card-topline, .diagram-labels, .footer {
   display: flex;
   align-items: center;
 }
@@ -44,7 +44,6 @@ button:disabled { cursor: progress; opacity: .58; }
 .hero h1, .section-intro h2, .feature-panel h2 { margin: .9rem 0 0; letter-spacing: -.065em; }
 .hero h1 { max-width: 620px; font-size: clamp(3.5rem, 7vw, 6.6rem); line-height: .9; }
 .hero-lede, .section-intro > p, .feature-panel > p { max-width: 600px; color: #a5abba; font-size: 1.03rem; line-height: 1.65; }
-.hero-actions { gap: .75rem; margin-top: 1.7rem; }
 
 .button { border: 1px solid #343844; border-radius: .75rem; padding: .76rem 1rem; color: #eff1f6; background: #171a21; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
 .button:hover:not(:disabled) { transform: translateY(-1px); border-color: #72798a; background: #20242d; }
@@ -148,7 +147,6 @@ body { background: radial-gradient(circle at 96% 4%, rgba(91, 86, 232, .11), tra
 .hero h1, .section-intro h2, .feature-panel h2 { color: #191a1d; letter-spacing: -.075em; }
 .hero h1 { max-width: 600px; font-size: clamp(3.55rem, 6.7vw, 6.35rem); line-height: .88; }
 .hero-lede, .section-intro > p, .feature-panel > p { max-width: 580px; color: #67656b; font-size: 1rem; line-height: 1.68; }
-.hero-actions { flex-wrap: wrap; gap: .7rem; }
 .button { border-color: rgba(25, 26, 29, .16); border-radius: 999px; padding: .78rem 1.05rem; color: #191a1d; background: rgba(255, 255, 255, .54); font-size: .88rem; font-weight: 680; transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease; }
 .button:hover:not(:disabled) { border-color: rgba(25, 26, 29, .34); background: #fff; box-shadow: 0 8px 18px rgba(42, 37, 33, .11); transform: translateY(-2px); }
 .button.primary { color: #fff; border-color: #5b56e8; background: #5b56e8; }
