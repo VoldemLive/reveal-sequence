@@ -27,7 +27,7 @@ const previewEffects: ReadonlyArray<{ value: RevealPresetEffect; icon: string; l
   { value: 'fade-down', icon: '↓', label: 'Fade down' },
   { value: 'slide-left', icon: '←', label: 'Slide left' },
   { value: 'slide-right', icon: '→', label: 'Slide right' },
-  { value: 'scale', icon: '◌', label: 'Scale' },
+  { value: 'scale', icon: '⤢', label: 'Scale' },
   { value: 'fade', icon: '◐', label: 'Fade' },
   { value: 'blur', icon: '✦', label: 'Blur' },
 ]
