@@ -2,13 +2,20 @@ import { describe, expect, it } from 'vitest'
 import { segmentText } from './segment'
 
 describe('segmentText', () => {
-  it.each(['grapheme', 'word', 'paragraph'] as const)(
+  it.each(['grapheme', 'word', 'sentence', 'paragraph'] as const)(
     'preserves the source text when splitting by %s',
     (granularity) => {
       const source = 'Hello 👨‍👩‍👧‍👦\n\nA second paragraph.'
       expect(segmentText(source, granularity).map(({ text }) => text).join('')).toBe(source)
     },
   )
+
+  it('marks an unfinished sentence as visible but not animated', () => {
+    expect(segmentText('First sentence. Incomplete', 'sentence')).toEqual([
+      { animated: true, text: 'First sentence.' },
+      { animated: false, text: ' Incomplete' },
+    ])
+  })
 
   it('keeps a joined emoji as one grapheme', () => {
     const emoji = '👨‍👩‍👧‍👦'

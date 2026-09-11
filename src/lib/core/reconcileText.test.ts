@@ -18,6 +18,25 @@ describe('reconcileText', () => {
     expect(appended.newUnitIds.size).toBe(0)
   })
 
+  it('does not reanimate a sentence that was already visible as an incomplete tail', () => {
+    const initial = reconcileText(null, 'Visible tail', 'sentence')
+    const completed = reconcileText(initial.state, 'Visible tail.', 'sentence')
+
+    expect(initial.state.units[0].animated).toBe(false)
+    expect(completed.state.units[0].animated).toBe(true)
+    expect(completed.state.units[0].id).toBe(initial.state.units[0].id)
+    expect(completed.newUnitIds.size).toBe(0)
+  })
+
+  it('marks a complete sentence delivered in a new chunk for animation', () => {
+    const initial = reconcileText(null, 'First.', 'sentence')
+    const appended = reconcileText(initial.state, 'First. Second.', 'sentence')
+
+    expect(appended.state.units.filter(({ id }) => appended.newUnitIds.has(id)).map(({ text }) => text)).toEqual([
+      ' Second.',
+    ])
+  })
+
   it('marks only a newly appended word as new', () => {
     const initial = reconcileText(null, 'Streaming', 'word')
     const appended = reconcileText(initial.state, 'Streaming text', 'word')

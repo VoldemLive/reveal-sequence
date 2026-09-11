@@ -16,7 +16,7 @@ export interface RevealKeyframes {
 
 export type RevealEffect = RevealPresetEffect | RevealKeyframes
 export type RevealTrigger = 'mount' | 'in-view' | 'controlled'
-export type RevealGranularity = 'grapheme' | 'word' | 'paragraph'
+export type RevealGranularity = 'grapheme' | 'word' | 'sentence' | 'paragraph'
 export type RevealMode = 'once' | 'append'
 export interface RevealInViewOptions {
   once?: boolean

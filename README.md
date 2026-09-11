@@ -91,3 +91,17 @@ and `scale`. `blur` is available for short content but is more expensive.
 
 The scheduler continues to own delays and batching, so custom visual settings cannot bypass the
 configured `maxLag` budget.
+
+## Sentence streaming
+
+`by="sentence"` is designed for calm long-form output. Complete sentences received in a new
+chunk animate as one unit. An unfinished trailing sentence remains visible immediately and grows
+without replaying its animation when its terminator arrives.
+
+```tsx
+<RevealText
+  by="sentence"
+  streaming={isStreaming}
+  value={streamedText}
+/>
+```
