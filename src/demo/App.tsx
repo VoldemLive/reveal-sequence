@@ -22,6 +22,16 @@ const initialCards = [
   { id: 2, label: 'Latency budget', detail: 'The scheduler accelerates before motion falls behind.' },
 ]
 
+const previewEffects: ReadonlyArray<{ value: RevealPresetEffect; icon: string; label: string }> = [
+  { value: 'fade-up', icon: '↑', label: 'Fade up' },
+  { value: 'fade-down', icon: '↓', label: 'Fade down' },
+  { value: 'slide-left', icon: '←', label: 'Slide left' },
+  { value: 'slide-right', icon: '→', label: 'Slide right' },
+  { value: 'scale', icon: '◌', label: 'Scale' },
+  { value: 'fade', icon: '◐', label: 'Fade' },
+  { value: 'blur', icon: '✦', label: 'Blur' },
+]
+
 export function App() {
   const [effect, setEffect] = useState<RevealPresetEffect>('fade-up')
   const [granularity, setGranularity] = useState<RevealGranularity>('word')
@@ -42,6 +52,11 @@ export function App() {
         : narrativeChunks.flatMap((sentence) => sentence.match(/\S+\s*/gu) ?? []),
     [granularity],
   )
+  const setPreviewEffect = (nextEffect: RevealPresetEffect) => {
+    setEffect(nextEffect)
+    setStaticRun((run) => run + 1)
+  }
+
   const activeGranularity = isBurst ? 'word' : granularity
 
   const stopStream = () => {
@@ -98,11 +113,16 @@ export function App() {
   }
 
   const code = `<RevealText\n  by="${activeGranularity}"\n  effect="${effect}"\n  duration={${duration}}\n  maxAnimatedItems={${maxAnimatedItems}}\n  streaming={isStreaming}\n  value={text}\n/>`
+  const scrollToTop = () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+    window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' })
+  }
 
   return (
     <main className="playground-shell">
       <nav className="topbar" aria-label="Reveal Sequence">
-        <a className="wordmark" href="#top" aria-label="Reveal Sequence home">
+        <a className="wordmark" href="#top" aria-label="Reveal Sequence home" onClick={(event) => { event.preventDefault(); scrollToTop() }}>
           reveal<span>sequence</span>
         </a>
         <div className="topbar-meta">
@@ -111,7 +131,7 @@ export function App() {
         </div>
       </nav>
 
-      <header className="hero" id="top">
+      <header className="hero">
         <div className="hero-copy">
           <p className="eyebrow">APPEND-AWARE REVEAL ENGINE</p>
           <h1>Make incoming content feel intentional.</h1>
@@ -119,29 +139,29 @@ export function App() {
             A React primitive for streams, text, and incremental UI. It animates what is new,
             preserves what is read, and keeps a hard budget on live animation wrappers.
           </p>
-          <div className="hero-preview-controls">
-            <label>
-              Effect
-              <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
-                <option value="fade-up">Fade up</option>
-                <option value="fade-down">Fade down</option>
-                <option value="slide-left">Slide left</option>
-                <option value="slide-right">Slide right</option>
-                <option value="scale">Scale</option>
-                <option value="fade">Fade</option>
-                <option value="blur">Blur</option>
-              </select>
-            </label>
-            <button className="button ghost" onClick={() => setStaticRun((run) => run + 1)}>
-              Replay headline
-            </button>
-          </div>
         </div>
 
         <section className="hero-stage" aria-label="Live headline preview">
           <div className="stage-orbit orbit-one" />
           <div className="stage-orbit orbit-two" />
-          <p className="stage-label">STATIC / WORD</p>
+          <div className="stage-topline">
+            <p className="stage-label">STATIC / WORD</p>
+            <div className="stage-effect-picker" role="group" aria-label="Preview animation effect">
+              {previewEffects.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={preset.value === effect ? 'effect-icon-button is-active' : 'effect-icon-button'}
+                  aria-label={preset.label}
+                  aria-pressed={preset.value === effect}
+                  title={preset.label}
+                  onClick={() => setPreviewEffect(preset.value)}
+                >
+                  <span aria-hidden="true">{preset.icon}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <RevealText
             as="p"
             by="word"
