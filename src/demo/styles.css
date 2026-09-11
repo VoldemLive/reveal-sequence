@@ -210,3 +210,14 @@ body { background: radial-gradient(circle at 96% 4%, rgba(91, 86, 232, .11), tra
   .studio { padding-bottom: 4.8rem; }
   .systems-grid { padding: 0; }
 }
+.hero { scroll-margin-top: 7.75rem; }
+.hero-preview-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem; margin-top: 1.55rem; }
+.hero-preview-controls label { display: grid; gap: .35rem; color: #5a585e; font-size: .7rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.hero-preview-controls select { min-width: 9.5rem; border: 1px solid rgba(25, 26, 29, .14); border-radius: 999px; padding: .7rem 2rem .7rem .85rem; color: #25252a; background: rgba(255,255,255,.78); font-size: .87rem; font-weight: 650; text-transform: none; }
+.hero-stage { background: linear-gradient(135deg, #4742bb, #6964da 62%, #8581e8); }
+.hero-stage::before { background: radial-gradient(circle at 42% 62%, rgba(255,255,255,.26) 0 18%, rgba(255,255,255,.08) 42%, transparent 72%); }
+.stage-orbit { border-color: rgba(255,255,255,.24); }
+.orbit-two { border-color: rgba(255,255,255,.36); }
+.stage-copy { color: #fff; }
+.stage-footer span { border-color: rgba(255,255,255,.28); color: #fff; background: rgba(255,255,255,.12); }
+@media (max-width: 540px) { .hero-preview-controls { align-items: stretch; } .hero-preview-controls label { width: 100%; } .hero-preview-controls select { width: 100%; } }

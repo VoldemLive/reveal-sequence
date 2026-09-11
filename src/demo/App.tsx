@@ -31,6 +31,7 @@ export function App() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [isBurst, setIsBurst] = useState(false)
   const [liveWrappers, setLiveWrappers] = useState(0)
+  const [staticRun, setStaticRun] = useState(0)
   const [cards, setCards] = useState(initialCards)
   const timers = useRef<number[]>([])
 
@@ -118,6 +119,23 @@ export function App() {
             A React primitive for streams, text, and incremental UI. It animates what is new,
             preserves what is read, and keeps a hard budget on live animation wrappers.
           </p>
+          <div className="hero-preview-controls">
+            <label>
+              Effect
+              <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
+                <option value="fade-up">Fade up</option>
+                <option value="fade-down">Fade down</option>
+                <option value="slide-left">Slide left</option>
+                <option value="slide-right">Slide right</option>
+                <option value="scale">Scale</option>
+                <option value="fade">Fade</option>
+                <option value="blur">Blur</option>
+              </select>
+            </label>
+            <button className="button ghost" onClick={() => setStaticRun((run) => run + 1)}>
+              Replay headline
+            </button>
+          </div>
         </div>
 
         <section className="hero-stage" aria-label="Live headline preview">
@@ -130,6 +148,7 @@ export function App() {
             className="stage-copy"
             duration={duration}
             effect={effect}
+            key={staticRun}
             mode="once"
             value="New content deserves a first impression."
           />
@@ -158,18 +177,6 @@ export function App() {
 
         <div className="studio-grid">
           <aside className="control-deck" aria-label="Reveal controls">
-            <label>
-              Effect
-              <select value={effect} onChange={(event) => setEffect(event.target.value as RevealPresetEffect)}>
-                <option value="fade-up">Fade up</option>
-                <option value="fade-down">Fade down</option>
-                <option value="slide-left">Slide left</option>
-                <option value="slide-right">Slide right</option>
-                <option value="scale">Scale</option>
-                <option value="fade">Fade</option>
-                <option value="blur">Blur</option>
-              </select>
-            </label>
             <label>
               Granularity
               <select
