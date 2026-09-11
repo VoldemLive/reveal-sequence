@@ -25,7 +25,7 @@ button:disabled { cursor: progress; opacity: .58; }
 .playground-shell {
   width: min(1180px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 1.25rem 0 2rem;
+  padding: 1.25rem 0 0;
 }
 
 .topbar, .topbar-meta, .proof-strip, .stream-metrics, .card-topline, .diagram-labels, .footer {
