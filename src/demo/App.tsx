@@ -53,7 +53,9 @@ export function App() {
     () => createStreamChunks(narrativeText, granularity),
     [granularity],
   )
-  const textMaxLag = Math.max(900, textInterval * 6)
+  // The playground keeps one start slot per live wrapper so Interval remains visually exact.
+  // The package default still permits maxLag-based compression under production pressure.
+  const textMaxLag = Math.max(900, textInterval * maxAnimatedItems)
   const groupMaxLag = Math.max(900, groupInterval * 6)
 
   const stopStream = () => {
