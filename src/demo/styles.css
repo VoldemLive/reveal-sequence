@@ -865,3 +865,138 @@ body { background: radial-gradient(circle at 96% 4%, rgba(91, 86, 232, .11), tra
   .api-reference-heading, .api-doc-grid { grid-template-columns: 1fr; }
   .api-reference-heading h2 { max-width: 15ch; }
 }
+
+/* Landing-page information hierarchy: install, paste, then inspect the live contract. */
+.topbar-links {
+  display: flex;
+  align-items: center;
+  gap: .1rem;
+}
+.topbar-links a {
+  padding: .46rem .5rem;
+  border-radius: .52rem;
+  color: #6d6c70;
+  text-decoration: none;
+  transition: color 150ms ease, background 150ms ease;
+}
+.topbar-links a:hover {
+  color: #242328;
+  background: rgba(25, 26, 29, .06);
+}
+.topbar-meta .github-link { color: #fff; }
+.hero-quickstart {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(13rem, 1fr);
+  gap: .55rem;
+  align-items: stretch;
+  width: min(100%, 31rem);
+  margin-top: 1.45rem;
+}
+.hero-quickstart .install-line {
+  width: auto;
+  margin: 0;
+}
+.hero-usage {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: .75rem .9rem;
+  border: 1px solid rgba(25, 26, 29, .12);
+  border-radius: .9rem;
+  color: #f8f7f4;
+  background: #232227;
+  box-shadow: 0 10px 20px rgba(44, 39, 35, .08);
+  font: 650 .69rem/1.42 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+}
+.hero-quickstart > p {
+  grid-column: 1 / -1;
+  margin: .08rem 0 0;
+  color: #747178;
+  font-size: .74rem;
+  line-height: 1.4;
+}
+.hero-quickstart > p code { color: #514cc8; font-weight: 700; }
+#text-demo, #group-demo, #text-api, #group-api { scroll-margin-top: 6.5rem; }
+@media (max-width: 900px) {
+  .topbar-links { display: none; }
+}
+@media (max-width: 720px) {
+  .hero-quickstart { grid-template-columns: 1fr; width: 100%; }
+  .hero-quickstart .install-line { width: 100%; }
+}
+@media (max-width: 540px) {
+  .topbar-meta > span { display: none; }
+}
+
+
+/* Quieter landing hierarchy: the header is a waypoint, technical facts are not KPI cards. */
+.hero-quickstart {
+  display: flex;
+  align-items: center;
+  gap: .68rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 1.5rem;
+  color: #27262b;
+  font: 650 .78rem ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.hero-quickstart .install-command {
+  gap: .45rem;
+  padding: .28rem .3rem .28rem .7rem;
+  border: 1px solid rgba(25, 26, 29, .12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .42);
+  white-space: nowrap;
+}
+.hero-quickstart .install-command code { color: #28272c; }
+.hero-quickstart .install-copy {
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 0;
+  background: rgba(91, 86, 232, .1);
+}
+.quickstart-arrow { color: #98949b; font-size: 1rem; }
+.hero-usage {
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #514cc8;
+  background: transparent;
+  box-shadow: none;
+  font: 650 .72rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: normal;
+}
+.hero-quickstart-note {
+  margin: .52rem 0 0;
+  color: #747178;
+  font-size: .74rem;
+}
+.product-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 clamp(.3rem, 1vw, 1rem) 6.5rem;
+  border-block: 1px solid rgba(25, 26, 29, .11);
+}
+.product-facts article {
+  display: grid;
+  gap: .35rem;
+  padding: 1.15rem 1.25rem;
+}
+.product-facts article + article { border-left: 1px solid rgba(25, 26, 29, .11); }
+.product-facts strong {
+  color: #29282d;
+  font: 700 .86rem ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: -.025em;
+}
+.product-facts span { color: #77747c; font-size: .78rem; }
+@media (max-width: 720px) {
+  .hero-quickstart { align-items: flex-start; flex-wrap: wrap; gap: .45rem; }
+  .hero-usage { flex-basis: 100%; padding-left: .1rem; }
+  .quickstart-arrow { display: none; }
+  .product-facts { grid-template-columns: 1fr; margin-bottom: 4.7rem; }
+  .product-facts article + article { border-top: 1px solid rgba(25, 26, 29, .11); border-left: 0; }
+}

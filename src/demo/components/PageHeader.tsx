@@ -28,7 +28,7 @@ export function PageHeader({
         </a>
         <div className="topbar-meta">
           <span>React primitive</span>
-          <a href="https://github.com/VoldemLive/reveal-sequence">GitHub ↗</a>
+          <a className="github-link" href="https://github.com/VoldemLive/reveal-sequence">GitHub ↗</a>
         </div>
       </nav>
 
@@ -40,8 +40,7 @@ export function PageHeader({
             A React primitive for streams, text, and incremental UI. It animates what is new,
             preserves what is read, and keeps a hard budget on live animation wrappers.
           </p>
-          <div className="install-line" aria-label="Package installation command">
-            <span>PACKAGE / PUBLISHING SOON</span>
+          <div className="hero-quickstart" aria-label="Quick start">
             <div className="install-command">
               <code>npm install reveal-sequence</code>
               <button
@@ -64,7 +63,10 @@ export function PageHeader({
                 )}
               </button>
             </div>
+            <span className="quickstart-arrow" aria-hidden="true">→</span>
+            <code className="hero-usage">{'<RevealText value={message} streaming={isStreaming} />'}</code>
           </div>
+          <p className="hero-quickstart-note">Append-aware by default. Stable content does not replay.</p>
         </div>
 
         <section className="hero-stage" aria-label="Live headline preview">
@@ -111,39 +113,18 @@ export function PageHeader({
         </section>
       </header>
 
-      <section className="proof-strip" aria-label="Key capabilities">
-        <article className="technical-card technical-card-build">
-          <div className="technical-card-topline">
-            <span className="technical-kicker"><i />CURRENT BUILD</span>
-            <span className="technical-tag">13.4 kB ESM</span>
-          </div>
-          <div className="technical-metric">
-            <strong>5.0</strong>
-            <span>kB<br />gzip</span>
-          </div>
-          <p>Tree-shakeable ESM with <code>sideEffects: false</code>.</p>
+      <section className="product-facts" aria-label="Key capabilities">
+        <article>
+          <strong>5.0 kB gzip</strong>
+          <span>Tree-shakeable ESM</span>
         </article>
-        <article className="technical-card technical-card-deps">
-          <div className="technical-card-topline">
-            <span className="technical-kicker"><i />DEPENDENCY MODEL</span>
-            <span className="technical-tag">React 18 / 19</span>
-          </div>
-          <div className="technical-metric">
-            <strong>0</strong>
-            <span>runtime<br />deps</span>
-          </div>
-          <p>React and React DOM stay peer dependencies. No animation framework included.</p>
+        <article>
+          <strong>0 runtime dependencies</strong>
+          <span>React 18 / 19 as peers</span>
         </article>
-        <article className="technical-card technical-card-api">
-          <div className="technical-card-topline">
-            <span className="technical-kicker"><i />RUNTIME TOOLKIT</span>
-            <span className="technical-tag">4 segment modes</span>
-          </div>
-          <div className="technical-metric">
-            <strong>2</strong>
-            <span>React<br />primitives</span>
-          </div>
-          <p><code>RevealText</code> <code>RevealGroup</code> <code>maxLag</code> <code>SSR-safe</code></p>
+        <article>
+          <strong>Text + keyed UI</strong>
+          <span>SSR-safe, reduced-motion aware</span>
         </article>
       </section>
     </>

@@ -1,6 +1,6 @@
 export function RevealTextApiReference() {
   return (
-    <section className="api-reference" aria-labelledby="reveal-text-api-title">
+    <section className="api-reference" id="text-api" aria-labelledby="reveal-text-api-title">
       <div className="api-reference-heading">
         <div>
           <p className="eyebrow">API REFERENCE / REVEALTEXT</p>
@@ -36,7 +36,7 @@ export function RevealTextApiReference() {
 
 export function RevealGroupApiReference() {
   return (
-    <section className="api-reference group-api-reference" aria-labelledby="reveal-group-api-title">
+    <section className="api-reference group-api-reference" id="group-api" aria-labelledby="reveal-group-api-title">
       <div className="api-reference-heading">
         <div>
           <p className="eyebrow">API REFERENCE / REVEALGROUP</p>

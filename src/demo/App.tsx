@@ -208,7 +208,7 @@ export function App() {
         staticRun={staticRun}
       />
 
-      <section className="studio" aria-labelledby="studio-title">
+      <section className="studio" id="text-demo" aria-labelledby="studio-title">
         <div className="section-intro">
           <p className="eyebrow">INTERACTIVE STUDIO</p>
           <h2 id="studio-title">Tune the feeling. Keep the contract.</h2>
@@ -368,7 +368,7 @@ export function App() {
 
       <RevealTextApiReference />
 
-      <section className="studio group-studio" aria-labelledby="group-studio-title">
+      <section className="studio group-studio" id="group-demo" aria-labelledby="group-studio-title">
         <div className="section-intro">
           <p className="eyebrow">REVEALGROUP / INTERACTIVE STUDIO</p>
           <h2 id="group-studio-title">Tune the sequence. Insert real UI.</h2>
