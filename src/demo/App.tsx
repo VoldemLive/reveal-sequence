@@ -316,7 +316,7 @@ export function App() {
               />
             </label>
             <div className="stream-actions">
-              <button className="button primary" disabled={isStreaming} onClick={runStream}>
+              <button className="button primary" disabled={isStreaming} onClick={() => runStream()}>
                 Run uneven stream
               </button>
             </div>
