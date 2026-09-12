@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  base: mode === 'pages' ? '/reveal-sequence/' : '/',
   build:
     mode === 'library'
       ? {
