@@ -53,10 +53,11 @@ export function App() {
     () => createStreamChunks(narrativeText, granularity),
     [granularity],
   )
-  // The playground keeps one start slot per live wrapper so Interval remains visually exact.
+  // The playground keeps one start slot per live wrapper plus a spare slot. The spare
+  // absorbs the few milliseconds between enqueue and the first scheduler tick.
   // The package default still permits maxLag-based compression under production pressure.
-  const textMaxLag = Math.max(900, textInterval * maxAnimatedItems)
-  const groupMaxLag = Math.max(900, groupInterval * 6)
+  const textMaxLag = Math.max(900, textInterval * (maxAnimatedItems + 1))
+  const groupMaxLag = Math.max(900, groupInterval * (maxActivityCards + 1))
 
   const stopStream = () => {
     for (const timer of timers.current) window.clearTimeout(timer)
