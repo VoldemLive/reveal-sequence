@@ -15,7 +15,6 @@ import {
   maxActivityCards,
   narrativeText,
   previewEffects,
-  streamCadenceByGranularity,
   streamUnitLabel,
   type ActivityKind,
 } from './model'
@@ -54,6 +53,9 @@ export function App() {
     () => createStreamChunks(narrativeText, granularity),
     [granularity],
   )
+  const textMaxLag = Math.max(900, textInterval * 6)
+  const groupMaxLag = Math.max(900, groupInterval * 6)
+
   const stopStream = () => {
     for (const timer of timers.current) window.clearTimeout(timer)
     timers.current = []
@@ -73,7 +75,7 @@ export function App() {
           setStreamText((current) => current + chunk)
           if (index === selectedChunks.length - 1) setIsStreaming(false)
         },
-        index === 0 ? 0 : index * streamCadenceByGranularity[granularity],
+        index === 0 ? 0 : index * textInterval,
       ),
     )
   }
@@ -188,8 +190,8 @@ export function App() {
     setAreActivityActionsExiting(false)
   }
 
-  const code = `<RevealText\n  by="${granularity}"\n  effect="${effect}"\n  duration={${duration}}\n  interval={${textInterval}}\n  maxAnimatedItems={${maxAnimatedItems}}\n  maxLag={900}\n  streaming={isStreaming}\n  value={text}\n/>`
-  const groupCode = `<RevealGroup\n  effect="${groupEffect}"\n  duration={${groupDuration}}\n  interval={${groupInterval}}\n  maxLag={900}\n>\n  {children}\n</RevealGroup>`
+  const code = `<RevealText\n  by="${granularity}"\n  effect="${effect}"\n  duration={${duration}}\n  interval={${textInterval}}\n  maxAnimatedItems={${maxAnimatedItems}}\n  maxLag={${textMaxLag}}\n  streaming={isStreaming}\n  value={text}\n/>`
+  const groupCode = `<RevealGroup\n  effect="${groupEffect}"\n  duration={${groupDuration}}\n  interval={${groupInterval}}\n  maxLag={${groupMaxLag}}\n>\n  {children}\n</RevealGroup>`
   const scrollToTop = () => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
@@ -285,7 +287,7 @@ export function App() {
               <input
                 type="range"
                 min="160"
-                max="720"
+                max="3000"
                 step="20"
                 value={duration}
                 onChange={(event) => setTextDuration(Number(event.target.value))}
@@ -296,8 +298,8 @@ export function App() {
               <input
                 type="range"
                 min="0"
-                max="140"
-                step="10"
+                max="1200"
+                step="20"
                 value={textInterval}
                 onChange={(event) => setTextIntervalValue(Number(event.target.value))}
               />
@@ -338,7 +340,7 @@ export function App() {
                   interval={textInterval}
                   key={textRun}
                   maxAnimatedItems={maxAnimatedItems}
-                  maxLag={900}
+                  maxLag={textMaxLag}
                   mode="append"
                   onSettled={measureLiveWrappers}
                   streaming={isStreaming}
@@ -355,7 +357,7 @@ export function App() {
               </div>
               <div>
                 <span>Max start lag</span>
-                <strong>900ms</strong>
+                <strong>{textMaxLag}ms</strong>
               </div>
               <div>
                 <span>Stream state</span>
@@ -405,7 +407,7 @@ export function App() {
             <label>
               Duration <output>{groupDuration}ms</output>
               <input
-                max="900"
+                max="3000"
                 min="160"
                 onChange={(event) => {
                   setGroupDuration(Number(event.target.value))
@@ -419,13 +421,13 @@ export function App() {
             <label>
               Interval <output>{groupInterval}ms</output>
               <input
-                max="140"
+                max="1000"
                 min="0"
                 onChange={(event) => {
                   setGroupInterval(Number(event.target.value))
                   replayGroup()
                 }}
-                step="10"
+                step="20"
                 type="range"
                 value={groupInterval}
               />
@@ -459,7 +461,7 @@ export function App() {
               duration={groupDuration}
               effect={groupEffect}
               interval={groupInterval}
-              maxLag={900}
+              maxLag={groupMaxLag}
               onSettled={() => setIsGroupAnimating(false)}
               itemClassName="activity-reveal"
               key={groupRun}
