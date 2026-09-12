@@ -100,8 +100,9 @@ export function PageHeader({
             as="p"
             by="word"
             className="stage-copy"
-            duration={duration}
+            duration={Math.max(duration, 1_300)}
             effect={effect}
+            interval={180}
             key={staticRun}
             mode="once"
             value="New content deserves a first impression."
