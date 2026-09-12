@@ -72,6 +72,19 @@ describe('RevealText', () => {
     expect(appendedCalls).toBe(1)
   })
 
+  it('uses updated timing for text that is still waiting to start', async () => {
+    const { rerender } = render(<RevealText duration={120} interval={200} value="One" />)
+
+    rerender(<RevealText duration={120} interval={200} value="One two" />)
+    rerender(<RevealText duration={720} interval={200} value="One two" />)
+    await act(() => vi.runAllTimersAsync())
+
+    expect(Element.prototype.animate).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ duration: 720 }),
+    )
+  })
+
   it('does not animate when reduced motion is enabled', async () => {
     vi.mocked(window.matchMedia).mockReturnValue({
       matches: true,
@@ -206,6 +219,23 @@ describe('RevealText', () => {
     })
     await act(() => vi.runAllTimersAsync())
     expect(root.querySelectorAll('span')).toHaveLength(0)
+  })
+
+  it('keeps separator text exact across a replay remount', async () => {
+    const value = 'Hello, world — then again.'
+    const { getByLabelText, rerender } = render(
+      <RevealText interval={0} maxAnimatedItems={2} streaming value={value} />,
+    )
+
+    await act(() => vi.runAllTimersAsync())
+    rerender(<RevealText interval={0} maxAnimatedItems={2} streaming={false} value={value} />)
+    await act(() => vi.runAllTimersAsync())
+    expect(getByLabelText(value).textContent).toBe(value)
+
+    rerender(<RevealText interval={0} key="replay" maxAnimatedItems={2} value={value} />)
+    await act(() => vi.runAllTimersAsync())
+
+    expect(getByLabelText(value).textContent).toBe(value)
   })
 
 })

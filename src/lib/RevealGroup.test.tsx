@@ -33,6 +33,33 @@ describe('RevealGroup', () => {
     expect(Element.prototype.animate).toHaveBeenCalledTimes(3)
   })
 
+  it('uses updated timing for keyed children that are still waiting to start', async () => {
+    const { rerender } = render(
+      <RevealGroup duration={120} interval={200}>
+        <span key="one">One</span>
+      </RevealGroup>,
+    )
+
+    rerender(
+      <RevealGroup duration={120} interval={200}>
+        <span key="one">One</span>
+        <span key="two">Two</span>
+      </RevealGroup>,
+    )
+    rerender(
+      <RevealGroup duration={720} interval={200}>
+        <span key="one">One</span>
+        <span key="two">Two</span>
+      </RevealGroup>,
+    )
+    await act(() => vi.runAllTimersAsync())
+
+    expect(Element.prototype.animate).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ duration: 720 }),
+    )
+  })
+
   it('treats a removed and re-added key as a new insertion', async () => {
     const { rerender } = render(
       <RevealGroup interval={0}>

@@ -69,6 +69,57 @@ function paragraphSegments(value: string): OffsetSegment[] {
   }))
 }
 
+function attachWordPunctuation(segments: OffsetSegment[]): OffsetSegment[] {
+  const grouped: OffsetSegment[] = []
+  let separatorRun: OffsetSegment | undefined
+
+  const flushSeparatorRun = () => {
+    if (!separatorRun) return
+
+    const trailingWhitespace = separatorRun.text.match(/\s+$/u)?.[0] ?? ''
+    const punctuation = separatorRun.text.slice(0, separatorRun.text.length - trailingWhitespace.length)
+    const previousContent = [...grouped].reverse().find(({ animated }) => animated)
+
+    if (previousContent && punctuation) {
+      previousContent.end += punctuation.length
+      previousContent.text += punctuation
+    } else if (punctuation) {
+      grouped.push({
+        animated: false,
+        end: separatorRun.start + punctuation.length,
+        start: separatorRun.start,
+        text: punctuation,
+      })
+    }
+
+    if (trailingWhitespace) {
+      const start = separatorRun.end - trailingWhitespace.length
+      grouped.push({ animated: false, end: separatorRun.end, start, text: trailingWhitespace })
+    }
+
+    separatorRun = undefined
+  }
+
+  for (const segment of segments) {
+    if (!segment.animated) {
+      if (separatorRun && separatorRun.end === segment.start) {
+        separatorRun.end = segment.end
+        separatorRun.text += segment.text
+      } else {
+        flushSeparatorRun()
+        separatorRun = { ...segment }
+      }
+      continue
+    }
+
+    flushSeparatorRun()
+    grouped.push({ ...segment })
+  }
+
+  flushSeparatorRun()
+  return grouped
+}
+
 function offsetSegments(
   value: string,
   granularity: RevealGranularity,
@@ -78,23 +129,28 @@ function offsetSegments(
   if (granularity === 'paragraph') return paragraphSegments(value)
   if (granularity === 'sentence') return sentenceSegments(value)
 
-  if (typeof Intl.Segmenter !== 'function') {
-    return fallbackSegments(value, granularity)
-  }
+  const segments =
+    typeof Intl.Segmenter !== 'function'
+      ? fallbackSegments(value, granularity)
+      : (() => {
+          const segmenter = new Intl.Segmenter(locale, { granularity })
+          return Array.from(segmenter.segment(value), ({ index, isWordLike, segment }) => {
+            const isContent =
+              !/^\s+$/u.test(segment) &&
+              (granularity !== 'word' ||
+                isWordLike !== false ||
+                /\p{Extended_Pictographic}/u.test(segment))
 
-  const segmenter = new Intl.Segmenter(locale, { granularity })
-  return Array.from(segmenter.segment(value), ({ index, isWordLike, segment }) => {
-    const isContent =
-      !/^\s+$/u.test(segment) &&
-      (granularity !== 'word' || isWordLike !== false || /\p{Extended_Pictographic}/u.test(segment))
+            return {
+              animated: isContent,
+              end: index + segment.length,
+              start: index,
+              text: segment,
+            }
+          })
+        })()
 
-    return {
-      animated: isContent,
-      end: index + segment.length,
-      start: index,
-      text: segment,
-    }
-  })
+  return granularity === 'word' ? attachWordPunctuation(segments) : segments
 }
 
 export function segmentText(

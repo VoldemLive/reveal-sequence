@@ -22,13 +22,13 @@ describe('segmentText', () => {
     expect(segmentText(emoji, 'grapheme')).toEqual([{ animated: true, text: emoji }])
   })
 
-  it('preserves punctuation without wrapping it as a word', () => {
-    expect(segmentText('Hello, world!', 'word')).toEqual([
-      { animated: true, text: 'Hello' },
-      { animated: false, text: ',' },
+  it('keeps punctuation with its adjacent word rather than showing it as a standalone unit', () => {
+    expect(segmentText('Hello, world — again!', 'word')).toEqual([
+      { animated: true, text: 'Hello,' },
       { animated: false, text: ' ' },
-      { animated: true, text: 'world' },
-      { animated: false, text: '!' },
+      { animated: true, text: 'world —' },
+      { animated: false, text: ' ' },
+      { animated: true, text: 'again!' },
     ])
   })
 

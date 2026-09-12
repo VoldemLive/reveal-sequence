@@ -359,9 +359,11 @@ export function RevealText({
       ref: rootRef,
       style,
     },
-    prefixEnd > 0 ? value.slice(0, prefixEnd) : null,
+    prefixEnd > 0 ? (
+      <Fragment key={`prefix:${generation}:${prefixEnd}`}>{value.slice(0, prefixEnd)}</Fragment>
+    ) : null,
     renderedUnits.map((unit) => {
-      if (!unit.animated) return unit.text
+      if (!unit.animated) return <Fragment key={unit.id}>{unit.text}</Fragment>
       return (
         <RevealUnit
           active={active}

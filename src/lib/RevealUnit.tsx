@@ -55,6 +55,7 @@ export function RevealUnit({
   const settledRef = useRef(!pending)
   const animationRef = useRef<Animation | null>(null)
   const animationConfigRef = useRef({ duration, easing, effect })
+  animationConfigRef.current = { duration, easing, effect }
 
   useBrowserLayoutEffect(() => {
     const element = elementRef.current
@@ -107,8 +108,10 @@ export function RevealUnit({
 
     return () => {
       release(unitId)
-      animationRef.current?.cancel()
+      const animation = animationRef.current
       animationRef.current = null
+      animation?.cancel()
+      clearAnimationStyles(element)
       if (!settledRef.current) hasAnimatedRef.current = false
     }
   }, [active, onPhaseChange, release, schedule, unitId])
