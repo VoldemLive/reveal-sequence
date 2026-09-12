@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/VoldemLive/reveal-sequence/issues"
   },
-  "homepage": "https://github.com/VoldemLive/reveal-sequence#readme",
+  "homepage": "https://voldemlive.github.io/reveal-sequence/",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
