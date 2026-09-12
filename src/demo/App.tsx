@@ -62,7 +62,7 @@ export function App() {
     setIsStreaming(false)
   }
 
-  const runStream = () => {
+  const runStream = (cadence = textInterval) => {
     stopStream()
     setTextRun((run) => run + 1)
     setLiveWrappers(0)
@@ -75,13 +75,13 @@ export function App() {
           setStreamText((current) => current + chunk)
           if (index === selectedChunks.length - 1) setIsStreaming(false)
         },
-        index === 0 ? 0 : index * textInterval,
+        index === 0 ? 0 : index * cadence,
       ),
     )
   }
 
-  const replayTextPreview = () => {
-    if (!isStreaming && streamText) runStream()
+  const replayTextPreview = (cadence = textInterval) => {
+    if (!isStreaming && streamText) runStream(cadence)
   }
 
   const setPreviewEffect = (nextEffect: RevealPresetEffect) => {
@@ -97,7 +97,7 @@ export function App() {
 
   const setTextIntervalValue = (nextInterval: number) => {
     setTextInterval(nextInterval)
-    replayTextPreview()
+    replayTextPreview(nextInterval)
   }
 
   const copyInstallCommand = async () => {
