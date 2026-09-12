@@ -24,19 +24,19 @@ built on tested reconciliation and scheduling behavior.
 - [x] Defer final compaction while the user owns a selection.
 - [x] Guarantee a clean DOM after stream completion.
 
-## Phase 3: Platform guarantees
+## Phase 3: Platform validation
 
 - [x] Match server and first-client markup.
-- [ ] Add React 18 and React 19 fixture coverage.
+- [ ] Add a dedicated React 18 compatibility fixture (post-1.0 validation).
 - [x] Add sentence- and completion-based announcement modes.
-- [ ] Add Chromium, Firefox, and WebKit tests.
-- [ ] Add high-rate stream and long-message benchmarks.
+- [ ] Add Chromium, Firefox, and WebKit browser checks (post-1.0 validation).
+- [ ] Add high-rate stream and long-message benchmark reporting (post-1.0 validation).
 
 ## Phase 4: Publishable package
 
 - [x] Produce ESM, CommonJS, source map, and declaration outputs.
-- [x] Enforce the 5 KB gzip budget.
+- [x] Enforce the 5.1 KiB gzip budget.
 - [x] Add package-content checks.
-- [ ] Enable npm provenance for the release.
-- [ ] Publish the public playground.
-- [ ] Release an npm alpha and collect API feedback.
+- [ ] Enable npm provenance for a CI-based release.
+- [ ] Publish the public playground after the 1.0.0 release.
+- [x] Prepare the 1.0.0 public release contract and package metadata.

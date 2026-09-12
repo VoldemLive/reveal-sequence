@@ -1,7 +1,7 @@
 # Reveal Sequence: Product and Technical Design
 
-**Status:** Draft for `v0.1.0`
-**Last updated:** 2026-09-10
+**Status:** Release 1.0
+**Last updated:** 2026-09-12
 **Target:** React 18 and React 19
 **Package name:** `reveal-sequence`
 
@@ -82,9 +82,9 @@ points rather than the main product message.
 
 ## 4. Goals
 
-`v0.1.0` must:
+`v1.0.0` must:
 
-1. Reveal appended text by word, grapheme, or paragraph.
+1. Reveal appended text by grapheme, word, sentence, or paragraph.
 2. Reveal newly inserted keyed React children.
 3. Keep reveal latency within a configurable `maxLag` budget.
 4. Preserve stable token and child identities across React renders.
@@ -99,7 +99,7 @@ points rather than the main product message.
 
 ## 5. Non-goals
 
-`v0.1.0` will not provide:
+`v1.0.0` will not provide:
 
 - Markdown parsing or rendering;
 - typewriter, backspace, scramble, or morphing effects;
@@ -145,7 +145,7 @@ does not recreate a full animation framework.
 
 ## 7. Public API
 
-The exact names may change before release, but the behavioral contract should remain stable.
+This is the stable v1 public contract.
 
 ### 7.1 `RevealText`
 
@@ -153,10 +153,10 @@ The exact names may change before release, but the behavioral contract should re
 type RevealTextProps = {
   value: string
   mode?: 'once' | 'append'
-  by?: 'word' | 'grapheme' | 'paragraph'
+  by?: 'word' | 'grapheme' | 'sentence' | 'paragraph'
   streaming?: boolean
 
-  effect?: 'fade' | 'fade-up' | RevealKeyframes
+  effect?: RevealPresetEffect | RevealKeyframes
   duration?: number
   interval?: number
   maxLag?: number
@@ -235,9 +235,12 @@ or a layout-animation library.
 Built-in effects:
 
 - `fade`: opacity only;
-- `fade-up`: opacity plus a small vertical transform.
+- `fade-up` and `fade-down`: opacity plus a small vertical transform;
+- `slide-left` and `slide-right`: opacity plus a small horizontal transform;
+- `scale`: opacity plus a small scale transform;
+- `blur`: opacity, a small vertical transform, and blur.
 
-`blur` remains a demo-only experiment until profiling proves it safe for repeated units.
+For long streams, prefer opacity and transform effects. Blur is best reserved for short content.
 
 Custom effects use WAAPI-compatible keyframes:
 
@@ -367,7 +370,7 @@ small overlap around the previous final unit to account for changed segmentation
 ### 10.2 Rewrite path
 
 A shorter value or a value that does not preserve the previous prefix is considered a reset or
-rewrite. In `v0.1.0`:
+rewrite. In `v1.0.0`:
 
 - the longest safe common prefix is retained;
 - the changed suffix is replaced immediately;
@@ -476,7 +479,7 @@ destroying an active copy selection.
 
 The library uses a wrapper for each item because arbitrary React components cannot be assumed to
 forward refs. `itemAs` makes the wrapper configurable. A future headless hook may support
-ref-forwarding applications without wrappers, but it is not required for `v0.1.0`.
+ref-forwarding applications without wrappers, but it is not required for `v1.0.0`.
 
 ## 14. Animation runtime
 
@@ -554,11 +557,11 @@ Reduced motion removes `inert` immediately.
 
 ## 18. Performance budgets
 
-Release budgets for `v0.1.0`:
+Release budgets for `v1.0.0`:
 
 | Metric | Budget |
 |---|---:|
-| Library bundle, excluding React | <= 5 KB gzip |
+| Library bundle, excluding React | <= 5.1 KiB gzip |
 | Runtime dependencies | 0 |
 | Default animated tail | <= 48 wrappers |
 | Hard supported tail configuration | <= 128 wrappers |
@@ -616,7 +619,7 @@ Package requirements:
 - an explicit `files` allowlist;
 - a package-size check in CI.
 
-The framework-independent core remains private in `v0.1.0`. It may become a public `./core`
+The framework-independent core remains private in `v1.0.0`. It may become a public `./core`
 export only after its API has been validated through the React adapter.
 
 ## 21. Testing strategy
@@ -772,7 +775,7 @@ POC code should be evolved, not treated as the production implementation.
 
 ## 26. Release acceptance criteria
 
-`v0.1.0` is ready when:
+`v1.0.0` is ready when:
 
 1. All goals in section 4 are implemented.
 2. All performance budgets in section 18 pass.

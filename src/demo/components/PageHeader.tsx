@@ -115,7 +115,7 @@ export function PageHeader({
 
       <section className="product-facts" aria-label="Key capabilities">
         <article>
-          <strong>5.0 kB gzip</strong>
+          <strong>5.1 kB gzip</strong>
           <span>Tree-shakeable ESM</span>
         </article>
         <article>

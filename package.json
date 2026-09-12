@@ -1,8 +1,7 @@
 {
   "name": "reveal-sequence",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Append-aware React reveal sequencing for text streams and keyed elements.",
-  "private": true,
   "type": "module",
   "license": "MIT",
   "author": "Volodymyr Shynkarov",
@@ -35,7 +34,8 @@
     "build:package": "vite build --mode library && tsc -p tsconfig.lib.json",
     "check:package": "node scripts/check-package.mjs && npm pack --dry-run",
     "check": "npm run build && npm run build:package && npm run check:package && vitest run",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run check"
   },
   "peerDependencies": {
     "react": ">=18.2.0 <20",
@@ -49,8 +49,23 @@
     "jsdom": "^30.0.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "terser": "^5.51.2",
     "typescript": "^7.0.2",
     "vite": "^8.3.0",
     "vitest": "^5.0.0"
+  },
+  "keywords": [
+    "react",
+    "animation",
+    "streaming",
+    "text-animation",
+    "web-animations-api",
+    "ai-ui"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

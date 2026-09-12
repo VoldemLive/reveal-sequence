@@ -1,117 +1,146 @@
 # Reveal Sequence
 
-An append-aware React reveal library for text, streaming strings, and keyed UI elements.
+Append-aware reveal sequencing for React text streams and newly inserted keyed UI.
 
-The product direction and target architecture are defined in
-[the design document](./docs/DESIGN.md). Delivery progress is tracked in the
-[implementation plan](./docs/IMPLEMENTATION_PLAN.md).
+Reveal Sequence is for interfaces where content arrives over time: streamed responses, activity feeds, logs, and incremental UI. It animates what is new, keeps previously read content stable, and compacts settled text back to ordinary DOM.
 
-## Run locally
+## Install
 
 ```bash
-npm install
-npm run dev
+npm install reveal-sequence
 ```
 
-## Verify
+React and React DOM are peer dependencies. React 18.2 through 19 are supported.
 
-```bash
-npm run check
+## Start with streamed text
+
+```tsx
+import { RevealText } from "reveal-sequence"
+
+export function Message({ isStreaming, text }: { isStreaming: boolean; text: string }) {
+  return <RevealText streaming={isStreaming} value={text} />
+}
 ```
 
-## Package build
+The default contract is `mode="append"`: only new content is scheduled. Stable content never replays when the parent rerenders or another chunk arrives.
 
-```bash
-npm run build:package
-npm run check:package
-```
+## Text controls
 
-The build produces ESM, CommonJS, source maps, and TypeScript declarations. The package check
-verifies public exports, the dry-run tarball, and a 5 KB gzip limit per JavaScript entry point.
-
-## API preview
+Choose how text is segmented, then tune the same timing controls used by keyed UI.
 
 ```tsx
 <RevealText
-  value={streamedText}
-  by="word"
-  mode="append"
+  value={message}
   streaming={isStreaming}
+  by="word"
+  effect="fade-up"
+  duration={420}
+  interval={42}
+  maxLag={240}
   maxAnimatedItems={48}
 />
+```
 
-<RevealText value={article} by="paragraph" mode="once" />
+| Prop | Default | Purpose |
+| --- | --- | --- |
+| `value` | required | Current text value. Appended content is reconciled without replaying the stable prefix. |
+| `by` | `"word"` | `"grapheme"`, `"word"`, `"sentence"`, or `"paragraph"`. Use `locale` for locale-aware word segmentation. |
+| `mode` | `"append"` | `"append"` animates incoming units; `"once"` animates only the initial value. |
+| `streaming` | `false` | Keeps the arriving tail live. Final DOM compaction waits until the stream settles. |
+| `maxAnimatedItems` | `48` | Hard cap on animated text wrappers. Older queued content becomes ordinary text immediately. |
+| `announce` | `"off"` | Optional polite announcement mode: `"sentence"` or `"complete"`. |
+| `onSettled` | — | Called after the current text generation has settled and final compaction is complete. |
 
-<RevealText
-  announce="sentence"
-  streaming={isStreaming}
-  value={streamedText}
-/>
+### Streaming details
 
-<RevealGroup>
-  {items.map((item) => <Card key={item.id} item={item} />)}
+- A chunk that ends in the middle of a word remains visible and is not replayed when that word finishes.
+- In `by="sentence"` mode, completed sentences animate as units while an unfinished trailing sentence stays readable and grows in place.
+- Rewrites do not pretend to be appends: the next value is rendered immediately and a new generation starts.
+- Whitespace remains ordinary text, so punctuation and spaces retain their original order and copy correctly.
+
+## Keyed UI controls
+
+Use `RevealGroup` for new React children. Existing keys stay inert; only newly inserted keys enter the sequence. This is intentionally an entrance primitive, not a layout or removal animation library.
+
+```tsx
+import { RevealGroup } from "reveal-sequence"
+
+<RevealGroup effect="slide-right" duration={360} interval={80} maxLag={280}>
+  {events.map((event) => (
+    <EventCard key={event.id} event={event} />
+  ))}
 </RevealGroup>
 ```
 
-Reveal Sequence uses `Intl.Segmenter` for locale-aware tokenization and the Web Animations API for
-animation. Source-offset identities prevent a partially streamed word from replaying, while one
-deadline-aware scheduler per root keeps new content inside the configured `maxLag` budget.
-Rewrites appear immediately; newly appended text and newly inserted keyed children animate once. Server output remains readable plain text and hydrates without changing the initial markup.
+| Prop | Default | Purpose |
+| --- | --- | --- |
+| `children` | required | Keyed React children. New keys animate; seen keys preserve their state. |
+| `as` / `itemAs` | `"div"` | Choose the root and temporary child wrapper elements. |
+| `itemClassName` | — | Class applied to each scheduled wrapper. |
+| `effect`, `duration`, `easing` | `"fade-up"`, `420` | Visual timing shared with `RevealText`. |
+| `interval`, `maxLag` | `70`, `280` | Start cadence and maximum allowed reveal lag. |
+| `trigger`, `active`, `inView` | `"mount"` | Run on mount, in view, or under an explicit boolean. |
+| `onSettled` | — | Called when the group scheduler becomes idle. |
 
-Accessibility is quiet by default: no live region is rendered unless `announce` is set. Use
-`announce="sentence"` to announce newly completed sentences during a stream, or
-`announce="complete"` to announce the final value once that stream has settled.
+Keep keys stable. Removal and reorder transitions belong to the host application or a dedicated layout-animation library.
 
-## Motion and triggers
+## Effects and triggers
 
-Use GPU-friendly presets: `fade`, `fade-up`, `fade-down`, `slide-left`, `slide-right`,
-and `scale`. `blur` is available for short content but is more expensive.
+Built-in effects are `fade`, `fade-up`, `fade-down`, `slide-left`, `slide-right`, `scale`, and `blur`. Prefer transform and opacity effects for long streams; blur is best reserved for short content.
+
+Custom Web Animations API keyframes are supported without taking control away from the scheduler:
 
 ```tsx
 <RevealText
   value={text}
-  effect="slide-right"
-  easing="cubic-bezier(.22, 1, .36, 1)"
-  duration={280}
-  trigger="in-view"
-  inView={{ rootMargin: '0px 0px -12% 0px', threshold: 0.2 }}
-/>
-
-<RevealText
-  value={text}
   effect={{
-    easing: 'linear',
+    easing: "linear",
     keyframes: [
-      { opacity: 0, transform: 'scale(.96)' },
-      { opacity: 1, transform: 'scale(1)' },
+      { opacity: 0, transform: "scale(.96)" },
+      { opacity: 1, transform: "scale(1)" },
     ],
   }}
 />
 ```
 
-The scheduler continues to own delays and batching, so custom visual settings cannot bypass the
-configured `maxLag` budget.
-
-## Sentence streaming
-
-`by="sentence"` is designed for calm long-form output. Complete sentences received in a new
-chunk animate as one unit. An unfinished trailing sentence remains visible immediately and grows
-without replaying its animation when its terminator arrives.
-
 ```tsx
 <RevealText
-  by="sentence"
-  streaming={isStreaming}
-  value={streamedText}
+  value={text}
+  trigger="in-view"
+  inView={{ rootMargin: "0px 0px -12% 0px", threshold: 0.2 }}
 />
+
+<RevealText value={text} trigger="controlled" active={isOpen} />
 ```
 
-## Bounded animated tail
+## Runtime behavior
 
-`maxAnimatedItems` is a configurable safety limit, not a truncation limit. When a burst exceeds
-it, older queued units become ordinary visible text immediately; only the newest tail keeps reveal
-wrappers and motion. The default is `48`.
+- **Append-aware.** Only incoming text units and new keyed children animate.
+- **Latency-bounded.** The scheduler compresses a burst before decorative motion can exceed `maxLag`.
+- **DOM-conscious.** Only the newest text tail keeps wrappers; settled history becomes plain text.
+- **Accessible by default.** Content remains readable on the server and without JavaScript. No live region is rendered unless `announce` is requested. Reduced-motion preferences settle content immediately.
+- **Dependency-light.** React and React DOM are peers; the package has no runtime dependencies. It ships ESM, CommonJS, source maps, and TypeScript declarations.
 
-```tsx
-<RevealText streaming value={text} maxAnimatedItems={24} />
+The release build enforces a maximum of 5.1 KiB gzip for each JavaScript entry point.
+
+## Browser platform
+
+Reveal Sequence uses `Intl.Segmenter` when available for locale-aware grapheme and word segmentation, with a basic fallback for older environments. Animations use the Web Animations API; when it is unavailable, content remains visible and settles without motion.
+
+## Development
+
+```bash
+npm install
+npm run dev
+npm run check
 ```
+
+`npm run check` runs type checks, the demo build, library build, package artifact validation, dry-run packaging, and the test suite.
+
+## Scope
+
+Reveal Sequence does not parse Markdown, animate layout/reorder/removal, split arbitrary nested HTML, or provide a general timeline engine. It is a focused primitive for revealing incremental text and keyed UI without replaying the past.
+
+## License
+
+MIT

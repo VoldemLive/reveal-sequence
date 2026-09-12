@@ -7,7 +7,11 @@ export default defineConfig(({ mode }) => ({
     mode === 'library'
       ? {
           emptyOutDir: true,
-          minify: 'oxc',
+          minify: 'terser',
+          terserOptions: {
+            compress: { passes: 3, pure_getters: true },
+            mangle: true,
+          },
           lib: {
             entry: 'src/lib/index.ts',
             formats: ['es', 'cjs'],

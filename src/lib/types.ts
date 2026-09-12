@@ -46,7 +46,6 @@ export interface RevealTextProps extends RevealTimingProps {
   locale?: string | string[]
   maxAnimatedItems?: number
   mode?: RevealMode
-  onComplete?: () => void
   onSettled?: () => void
   style?: CSSProperties
   streaming?: boolean
@@ -61,7 +60,6 @@ export interface RevealGroupProps extends RevealTimingProps {
   className?: string
   itemAs?: ElementType
   itemClassName?: string
-  onComplete?: () => void
   onSettled?: () => void
   style?: CSSProperties
   trigger?: RevealTrigger

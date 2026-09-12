@@ -37,7 +37,7 @@ export function getEffectEasing(effect: RevealEffect, fallback: string): string 
 }
 
 export function getInitialFrame(effect: RevealEffect): Keyframe {
-  return getEffectKeyframes(effect)[0] ?? {}
+  return getEffectKeyframes(effect)[0] || {}
 }
 
 export function getAdaptiveInterval(count: number, interval: number, maxLag: number): number {

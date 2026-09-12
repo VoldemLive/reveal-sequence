@@ -26,7 +26,6 @@ export function RevealGroup({
   itemAs = 'div',
   itemClassName,
   maxLag = 280,
-  onComplete,
   onSettled,
   style,
   trigger = 'mount',
@@ -37,10 +36,7 @@ export function RevealGroup({
   const { release, schedule } = useRevealScheduler({
     interval,
     maxLag,
-    onIdle: () => {
-      onSettled?.()
-      if (onComplete !== onSettled) onComplete?.()
-    },
+    onIdle: onSettled,
   })
   const entries = childArray.map((child, index) => ({
     child,

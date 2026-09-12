@@ -133,12 +133,12 @@ describe('RevealText', () => {
     expect(Element.prototype.animate).toHaveBeenCalledTimes(4)
   })
 
-  it('calls onComplete once after its scheduled batch settles', async () => {
-    const onComplete = vi.fn()
-    render(<RevealText interval={0} onComplete={onComplete} value="One batch" />)
+  it('calls onSettled once after its scheduled batch settles', async () => {
+    const onSettled = vi.fn()
+    render(<RevealText interval={0} onSettled={onSettled} value="One batch" />)
     await act(() => vi.runAllTimersAsync())
 
-    expect(onComplete).toHaveBeenCalledTimes(1)
+    expect(onSettled).toHaveBeenCalledTimes(1)
   })
 
   it('bounds live wrappers while streaming and leaves clean DOM when complete', async () => {

@@ -72,14 +72,13 @@ function paragraphSegments(value: string): OffsetSegment[] {
 function attachWordPunctuation(segments: OffsetSegment[]): OffsetSegment[] {
   const grouped: OffsetSegment[] = []
   let separatorRun: OffsetSegment | undefined
+  let previousContent: OffsetSegment | undefined
 
   const flushSeparatorRun = () => {
     if (!separatorRun) return
 
-    const trailingWhitespace = separatorRun.text.match(/\s+$/u)?.[0] ?? ''
-    const punctuation = separatorRun.text.slice(0, separatorRun.text.length - trailingWhitespace.length)
-    const previousContent = [...grouped].reverse().find(({ animated }) => animated)
-
+    const punctuation = separatorRun.text.trimEnd()
+    const trailingWhitespace = separatorRun.text.slice(punctuation.length)
     if (previousContent && punctuation) {
       previousContent.end += punctuation.length
       previousContent.text += punctuation
@@ -113,7 +112,8 @@ function attachWordPunctuation(segments: OffsetSegment[]): OffsetSegment[] {
     }
 
     flushSeparatorRun()
-    grouped.push({ ...segment })
+    previousContent = { ...segment }
+    grouped.push(previousContent)
   }
 
   flushSeparatorRun()

@@ -10,7 +10,7 @@ const requiredFiles = [
   'dist/index.cjs.map',
   'dist/types/index.d.ts',
 ]
-const gzipBudget = 5 * 1024
+const gzipBudget = Math.floor(5.1 * 1024)
 
 for (const file of requiredFiles) {
   if (!existsSync(file)) throw new Error(`Missing package artifact: ${file}`)

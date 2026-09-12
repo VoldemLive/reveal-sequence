@@ -60,7 +60,6 @@ export function RevealText({
   maxAnimatedItems = 48,
   maxLag = 240,
   mode = 'append',
-  onComplete,
   onSettled,
   streaming = false,
   style,
@@ -319,8 +318,7 @@ export function RevealText({
 
     notifiedGenerationsRef.current.add(generation)
     onSettled?.()
-    if (onComplete !== onSettled) onComplete?.()
-  }, [compactionVersion, generation, hydrated, onComplete, onSettled, streaming, value])
+  }, [compactionVersion, generation, hydrated, onSettled, streaming, value])
 
   useEffect(
     () => () => {

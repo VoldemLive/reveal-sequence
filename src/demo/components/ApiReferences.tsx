@@ -61,7 +61,7 @@ export function RevealGroupApiReference() {
             <div><dt><code>effect</code> <code>duration</code> <code>easing</code><span>motion</span></dt><dd>The same preset or custom keyframes model as <code>RevealText</code>. Duration defaults to 420ms.</dd></div>
             <div><dt><code>interval</code> <code>maxLag</code><span>70ms · 280ms</span></dt><dd>Starts are paced by interval; the scheduler compresses a burst to respect the lag budget.</dd></div>
             <div><dt><code>trigger</code> <code>active</code> <code>inView</code><span>mount · default</span></dt><dd>Use mount, in-view, or controlled activation for the group.</dd></div>
-            <div><dt><code>onSettled</code> <code>onComplete</code><span>callbacks</span></dt><dd>Called after the pending keyed children complete and the scheduler becomes idle.</dd></div>
+            <div><dt><code>onSettled</code><span>callback</span></dt><dd>Called after pending keyed children complete and the scheduler becomes idle.</dd></div>
           </dl>
         </article>
       </div>
